@@ -918,6 +918,15 @@ main{padding:18px}
   background: rgba(239,68,68,.18);
 }
 
+/* Rename button accent (non-danger) */
+.sectionRow .miniBtn:not(.danger){
+  border-color: rgba(104,182,255,.35);
+}
+
+.sectionRow .miniBtn:not(.danger):hover{
+  background: rgba(104,182,255,.18);
+}
+
 .addRow{
   display:flex;
   gap:10px;
@@ -1393,6 +1402,60 @@ html[data-theme="apple"] dialog.dialog > form.form input,
 
 html[data-theme="apple"] .brand-logo {
   filter: brightness(0) invert(1);
+}
+
+/* ===== Add Link dialog polish (minimal + clean) ===== */
+#addDialog > form.form h2{
+  font-size: 18px;
+  letter-spacing: .2px;
+  margin-bottom: 10px;
+}
+
+#addDialog > form.form label{
+  margin: 10px 0;
+  gap: 6px;
+}
+
+#addDialog > form.form label:not(.themeOption){
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  opacity: .9;
+}
+
+#addDialog > form.form input,
+#addDialog > form.form select{
+  height: 40px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.92);
+  outline: none;
+}
+
+#addDialog > form.form select{
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+#addDialog > form.form input:focus,
+#addDialog > form.form select:focus{
+  border-color: rgba(104,182,255,.55);
+  box-shadow: 0 0 0 4px rgba(104,182,255,.18);
+}
+
+#addDialog > form.form .row{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#addDialog > form.form .hint{
+  margin-top: 10px;
+  opacity: .75;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 /* ===== Tile hover polish: highlight the whole tile, not just text ===== */

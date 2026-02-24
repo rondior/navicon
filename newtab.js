@@ -1319,6 +1319,10 @@ render();
   if (e.target === addDialog) addDialog.close();
 });
 
+settingsDialog?.addEventListener("click", (e) => {
+  if (e.target === settingsDialog) settingsDialog.close();
+});
+
   addForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = nameInput.value.trim();
@@ -1541,40 +1545,54 @@ sectionList.addEventListener("dragover", (e) => {
     handle.style.cursor = "grab";
     handle.style.userSelect = "none";
 
-    const inp = document.createElement("input");
-    inp.value = g;
-    inp.dataset.orig = g;
+    const nameText = document.createElement("div");
+    nameText.className = "sectionName";
+    nameText.textContent = g;
+    nameText.dataset.orig = g;
 
     const save = document.createElement("button");
-    save.type = "button";
-    save.className = "miniBtn";
-    save.textContent = "Rename";
+save.type = "button";
+save.className = "miniBtn";
+save.textContent = "Rename";
 
-    const del = document.createElement("button");
-    del.type = "button";
-    del.className = "miniBtn danger";
-    del.textContent = "Delete";
-    del.disabled = false;
+const del = document.createElement("button");
+del.type = "button";
+del.className = "miniBtn danger";
+del.textContent = "Delete";
+del.disabled = false;
+
+// Prevent editing "Other"
+if (isOther) {
+  save.disabled = true;
+  del.disabled = true;
+  save.title = "Other can’t be renamed";
+  del.title = "Other can’t be deleted";
+}
 
     save.addEventListener("click", async () => {
-      const orig = inp.dataset.orig;
-      const nextName = inp.value.trim();
+      const orig = nameText.dataset.orig;
+      const nextName = (prompt("Rename section:", orig) || "").trim();
       if (!nextName) return;
 
       const curGroups = await getGroupsList();
       // prevent rename to existing (case-insensitive)
       const exists = curGroups.some(x => x.toLowerCase() === nextName.toLowerCase());
-      if (exists && nextName.toLowerCase() !== orig.toLowerCase()) return;
+      if (exists && nextName.toLowerCase() !== String(orig || "").toLowerCase()) return;
 
       // Update groups list
-      const updated = curGroups.map(x => (x === orig ? nextName : x));
+      const origKey = String(orig || "").trim().toLowerCase();
+      const updated = curGroups.map(x => {
+      const key = String(x || "").trim().toLowerCase();
+      return key === origKey ? nextName : x;
+     });
       // Keep Other forced last by setGroupsList/getGroupsList
       await setGroupsList(updated);
 
       // Update any tiles assigned to old group
       const links = await loadLinksEnsured();
       for (const l of links) {
-        if ((l.group || "") === orig) l.group = nextName;
+      const lg = String(l.group || "").trim().toLowerCase();
+      if (lg === origKey) l.group = nextName;
       }
       await saveLinks(links);
 
@@ -1583,7 +1601,7 @@ sectionList.addEventListener("dragover", (e) => {
     });
 
     del.addEventListener("click", async () => {
-  const name = (inp.dataset.orig || "").trim();
+  const name = (nameText.dataset.orig || "").trim();
   if (!name) return;
 
   const curGroups = await getGroupsList();
@@ -1605,7 +1623,7 @@ sectionList.addEventListener("dragover", (e) => {
 });
 
     row.appendChild(handle);
-    row.appendChild(inp);
+    row.appendChild(nameText);
     row.appendChild(save);
     row.appendChild(del);
     sectionList.appendChild(row);
