@@ -1591,12 +1591,59 @@ sectionList.addEventListener("dragover", (e) => {
     render();
   }
 
-  settingsBtn.addEventListener("click", async () => {
-    if (!settingsDialog) return;
-    await renderSectionManager();
-    settingsDialog.showModal();
-    if (newSectionName) setTimeout(() => newSectionName.focus(), 50);
-  });
+  settingsBtn.addEventListener("click", async (e) => {
+  if (!settingsDialog) return;
+
+  // Render settings content
+  await renderSectionManager();
+
+  // Hidden DEV toggle: hold Shift while opening Settings to reveal it
+    // Hidden DEV toggles: hold Shift while opening Settings to reveal them
+  const devProRow = document.getElementById("devProRow");
+  const devProChk = document.getElementById("devProEnabled");
+
+  const devPromoRow = document.getElementById("devPromoRow");
+  const devPromoChk = document.getElementById("devPromoFreeFolders");
+
+  const shiftHeld = !!(e && e.shiftKey);
+
+  const hideDev = () => {
+    if (devProRow) devProRow.style.display = "none";
+    if (devPromoRow) devPromoRow.style.display = "none";
+    if (devProChk) devProChk.onchange = null;
+    if (devPromoChk) devPromoChk.onchange = null;
+  };
+
+  if (shiftHeld) {
+    if (devProRow) devProRow.style.display = "";
+    if (devPromoRow) devPromoRow.style.display = "";
+
+    const s = await loadSettings();
+
+    if (devProChk) {
+      devProChk.checked = !!s.proEnabled;
+      devProChk.onchange = async () => {
+        const s2 = await loadSettings();
+        s2.proEnabled = !!devProChk.checked; // boolean only
+        await saveSettings(s2);
+      };
+    }
+
+    if (devPromoChk) {
+      devPromoChk.checked = !!s.promoFreeFolders;
+      devPromoChk.onchange = async () => {
+        const s2 = await loadSettings();
+        s2.promoFreeFolders = !!devPromoChk.checked; // boolean only
+        await saveSettings(s2);
+      };
+    }
+  } else {
+    hideDev();
+  }
+
+  settingsDialog.showModal();
+  if (newSectionName) setTimeout(() => newSectionName.focus(), 50);
+});
 
   function getSectionOrderFromDOM() {
   if (!sectionList) return [];
