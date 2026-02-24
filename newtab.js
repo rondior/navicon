@@ -162,6 +162,12 @@ async function loadSettings() {
   if (typeof s.tileSize === "undefined" || s.tileSize === null) s.tileSize = 160;
   if (typeof s.groupMode !== "boolean") s.groupMode = false;
 
+// Pro / promo flags
+// promoFreeFolders: true = folders available to everyone (launch mode)
+// proEnabled: true = user has lifetime unlock (future)
+if (typeof s.promoFreeFolders !== "boolean") s.promoFreeFolders = false;
+if (typeof s.proEnabled !== "boolean") s.proEnabled = false;
+
   // Coerce tileSize to a number (handles legacy string values like "110")
   const t = Number(s.tileSize);
   if (Number.isFinite(t)) s.tileSize = t;
@@ -201,6 +207,22 @@ async function loadSettings() {
 
 async function saveSettings(s) {
   await chrome.storage.local.set({ [SETTINGS_KEY]: s });
+}
+
+// =========================
+// Pro gating (Folders)
+// =========================
+async function hasPro() {
+  const s = await loadSettings();
+  return !!s.proEnabled;
+}
+
+async function canUseFolders() {
+  const s = await loadSettings();
+  // Launch mode: folders free
+  if (s.promoFreeFolders) return true;
+  // Later: folders require Pro
+  return !!s.proEnabled;
 }
 
 async function repairGroupsOnce() {
@@ -1217,12 +1239,29 @@ if (layoutModeControl) {
     const btn = e.target.closest(".segBtn");
     if (!btn) return;
 
-    const nextMode = btn.dataset.mode;
+       const nextMode = btn.dataset.mode;
     if (!["flat", "sections", "folders"].includes(nextMode)) return;
 
+    // Load current settings first so we can safely fallback if blocked
     const s2 = await loadSettings();
-    if (s2.layoutMode === nextMode) return;
+    const currentMode = s2.layoutMode || (s2.groupMode ? "sections" : "flat");
 
+    if (currentMode === nextMode) return;
+
+    // Pro gate: folders
+    if (nextMode === "folders") {
+      const allowed = await canUseFolders();
+      if (!allowed) {
+        alert("Folders are part of Navicon Pro (one-time lifetime unlock).");
+
+        // Force UI back to the current mode (prevents switching)
+        paint(currentMode);
+        await render();
+        return;
+      }
+    }
+
+    // Allowed: proceed with switch
     s2.layoutMode = nextMode;
 
     // Keep legacy boolean synced (safety while renderer still uses groupMode)
