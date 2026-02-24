@@ -65,7 +65,7 @@
       <rect x="4" y="5" width="16" height="5" rx="2"></rect>
       <rect x="4" y="12" width="16" height="7" rx="2"></rect>
     </svg>
-    <span>Sections</span>
+    <span>Sections</span><span class="proBadge" data-pro-badge="sections" aria-hidden="true">PRO</span>
   </button>
 
   <button type="button" class="segBtn" data-mode="folders" aria-checked="false" role="radio" title="Folder tiles">
@@ -75,7 +75,7 @@
       <rect x="11" y="12" width="3" height="3" rx="0.8"></rect>
       <rect x="15" y="12" width="3" height="3" rx="0.8"></rect>
     </svg>
-    <span>Folders</span>
+    <span>Folders</span><span class="proBadge" data-pro-badge="folders" aria-hidden="true">PRO</span>
   </button>
 </div>
 
@@ -148,7 +148,7 @@
 </div>
 
 <div class="row" id="devPromoRow" style="display:none">
-  <label class="label" for="devPromoFreeFolders">Dev: Promo Free Folders</label>
+  <label class="label" for="devPromoFreeFolders">Dev: Promo Free Advanced Layouts (Sections + Folders)</label>
   <input id="devPromoFreeFolders" type="checkbox" />
 </div>
 
@@ -164,6 +164,26 @@
       <p class="hint">Tip: “Other” can’t be removed. Deleting a section moves its tiles to Other.</p>
     </form>
   </dialog>
+
+  <!-- Pro Unlock Modal (skeleton; only shown when folders are locked) -->
+<dialog id="proDialog" class="dialog">
+  <form method="dialog" class="form">
+    <h2 class="settingsTitle">Navicon Pro</h2>
+
+    <p class="hint" style="margin-top:10px">
+      Sections and Folders are part of Navicon Pro (one-time lifetime unlock).
+    </p>
+
+    <div class="row settingsActions" style="margin-top:14px">
+      <button id="proBuyBtn" type="button" class="btn primary">Unlock Pro</button>
+      <button value="cancel" class="btn">Not now</button>
+    </div>
+
+    <p class="hint" style="margin-top:10px">
+      (Purchase flow coming next — button does nothing yet.)
+    </p>
+  </form>
+</dialog>
 
   <script src="newtab.js"></script>
 </body>

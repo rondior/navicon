@@ -217,6 +217,15 @@ async function hasPro() {
   return !!s.proEnabled;
 }
 
+async function updateProBadges() {
+  const s = await loadSettings();
+  const locked = !s.promoFreeFolders && !s.proEnabled;
+
+  document.querySelectorAll("[data-pro-badge]").forEach(el => {
+    el.style.display = locked ? "inline-block" : "none";
+  });
+}
+
 async function canUseFolders() {
   const s = await loadSettings();
   // Launch mode: folders free
@@ -1085,11 +1094,14 @@ async function render() {
 
   const s = await loadSettings();
   const layoutMode = s.layoutMode || (s.groupMode ? "sections" : "flat");
-    const grouped = (layoutMode === "sections"); // ONLY sections uses grouped layout
+
+  await updateProBadges();  // ← ADD THIS LINE HERE
+
+  const grouped = (layoutMode === "sections"); // ONLY sections uses grouped layout
   if (grid) {
-  grid.classList.toggle("grouped", grouped);
-  grid.classList.toggle("folders", layoutMode === "folders");
-}
+    grid.classList.toggle("grouped", grouped);
+    grid.classList.toggle("folders", layoutMode === "folders");
+  }
 
   // Clear again after awaits to prevent append from a stale render
   grid.innerHTML = "";
@@ -1248,11 +1260,16 @@ if (layoutModeControl) {
 
     if (currentMode === nextMode) return;
 
-    // Pro gate: folders
-    if (nextMode === "folders") {
-      const allowed = await canUseFolders();
+    // Pro gate: advanced layouts (sections + folders)
+    if (nextMode === "sections" || nextMode === "folders") {
+      const allowed = await canUseFolders(); // promo OR pro
       if (!allowed) {
-        alert("Folders are part of Navicon Pro (one-time lifetime unlock).");
+        const proDialog = document.getElementById("proDialog");
+        if (proDialog && typeof proDialog.showModal === "function") {
+          proDialog.showModal();
+        } else {
+          alert("Sections and Folders are part of Navicon Pro (one-time lifetime unlock).");
+        }
 
         // Force UI back to the current mode (prevents switching)
         paint(currentMode);
@@ -1626,6 +1643,7 @@ sectionList.addEventListener("dragover", (e) => {
         const s2 = await loadSettings();
         s2.proEnabled = !!devProChk.checked; // boolean only
         await saveSettings(s2);
+        await updateProBadges();
       };
     }
 
@@ -1635,6 +1653,7 @@ sectionList.addEventListener("dragover", (e) => {
         const s2 = await loadSettings();
         s2.promoFreeFolders = !!devPromoChk.checked; // boolean only
         await saveSettings(s2);
+        await updateProBadges();
       };
     }
   } else {
