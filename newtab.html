@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" href="assets/navicon-logo-square-128.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>navicon</title>
+  <link rel="stylesheet" href="newtab.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+  <img src="assets/navicon-logo-square-128.png" alt="Navicon" class="brand-logo">
+  <div class="brandText">
+    <div class="brandName">Navicon</div>
+    <div class="brandMeta">
+      <span class="brandTagline">Navigate visually</span>
+      <span class="brandDot">•</span>
+      <span id="versionPill" class="versionPill">v0.0.0</span>
+    </div>
+  </div>
+</div>
+
+ <div class="search">
+  <form id="searchForm" class="searchForm">
+    <span class="searchIcon" aria-hidden="true">🔍</span>
+    <input
+      id="searchInput"
+      class="searchInput"
+      type="text"
+      placeholder="Search Google…"
+      autocomplete="off"
+    />
+    <span id="kbdHint" class="kbdHint" aria-hidden="true">⌘K</span>
+  </form>
+</div>
+
+  <div class="actions">
+    <div class="addWrap">
+  <button id="addBtn" class="btn">+ Add</button>
+  <span id="firstRunHint" class="firstRunHint" aria-hidden="true">Add your first link</span>
+</div>
+
+<label class="sizeCtl" title="Tile size">
+      <span class="sizeLabel">Size</span>
+      <div class="sizeControl">
+  <input id="sizeRange" type="range" min="82" max="200" step="1" value="160" />
+  <button id="sizeResetBtn" type="button" title="Reset tile size to smallest setting" aria-label="Reset tile size to smallest setting">⟲</button>
+</div>
+</label>
+
+<div id="layoutModeControl" class="segmented" role="radiogroup" aria-label="Layout mode">
+  <button type="button" class="segBtn" data-mode="flat" aria-checked="false" role="radio" title="Flat grid">
+    <svg class="segIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="4" width="7" height="7" rx="1.5"></rect>
+      <rect x="13" y="4" width="7" height="7" rx="1.5"></rect>
+      <rect x="4" y="13" width="7" height="7" rx="1.5"></rect>
+      <rect x="13" y="13" width="7" height="7" rx="1.5"></rect>
+    </svg>
+    <span>Flat</span>
+  </button>
+
+  <button type="button" class="segBtn" data-mode="sections" aria-checked="false" role="radio" title="Grouped sections">
+    <svg class="segIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="5" rx="2"></rect>
+      <rect x="4" y="12" width="16" height="7" rx="2"></rect>
+    </svg>
+    <span>Sections</span>
+  </button>
+
+  <button type="button" class="segBtn" data-mode="folders" aria-checked="false" role="radio" title="Folder tiles">
+    <svg class="segIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h4.2c.7 0 1.4.3 1.9.8l.7.7H17.5A2.5 2.5 0 0 1 20 10v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 18V7.5z"></path>
+      <rect x="7" y="12" width="3" height="3" rx="0.8"></rect>
+      <rect x="11" y="12" width="3" height="3" rx="0.8"></rect>
+      <rect x="15" y="12" width="3" height="3" rx="0.8"></rect>
+    </svg>
+    <span>Folders</span>
+  </button>
+</div>
+
+    <button id="settingsBtn" class="btn">⚙︎</button>
+  </div>
+</header>
+
+  <main>
+    <section id="grid" class="grid" aria-label="Speed dial tiles"></section>
+  </main>
+
+  <!-- Simple modal -->
+  <dialog id="addDialog" class="dialog">
+    <form id="addForm" method="dialog" class="form">
+      <h2>Add a link</h2>
+      <label>
+        Name
+        <input id="nameInput" type="text" autocomplete="off" placeholder="e.g., CoinGecko" required />
+      </label>
+      <label>
+        URL
+        <input id="urlInput" type="url" autocomplete="off" placeholder="https://www.coingecko.com" required />
+      </label>
+      <div class="row">
+        <button type="button" value="cancel" class="btn ghost">Cancel</button>
+        <button id="saveBtn" value="default" class="btn primary">Save</button>
+      </div>
+      <p class="hint">Tip: paste any site URL. Thumbnails come next step.</p>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog" class="dialog">
+    <form id="settingsForm" method="dialog" class="form">
+      <h2>Manage Sections</h2>
+      <hr class="divider" />
+
+<h2 class="settingsTitle">Theme</h2>
+<div class="themeOptions" role="radiogroup" aria-label="Theme">
+  <label class="themeOption">
+    <input type="radio" name="theme" value="apple" />
+    <span>Apple Glass</span>
+  </label>
+
+  <label class="themeOption">
+  <input type="radio" name="theme" value="windows">
+  <span>Windows Original</span>
+</label>
+
+  <label class="themeOption">
+    <input type="radio" name="theme" value="warm" />
+    <span>Warm Studio</span>
+  </label>
+</div>
+
+<hr class="divider" />
+
+      <div class="sectionListWrap">
+        <div id="sectionList" class="sectionList"></div>
+      </div>
+
+      <div class="addRow">
+        <input id="newSectionName" type="text" autocomplete="off" placeholder="New section name (e.g., Hearing)" />
+        <button id="addSectionBtn" value="default" class="btn primary" type="button">Add</button>
+      </div>
+
+  <div class="row settingsActions">
+  <button type="button" id="exportBtn" class="btn">Export Backup</button>
+
+  <input id="importFile" type="file" accept="application/json" style="display:none" />
+  <button type="button" id="importBtn" class="btn">Import Backup</button>
+
+  <button value="cancel" class="btn">Close</button>
+</div>
+
+      <p class="hint">Tip: “Other” can’t be removed. Deleting a section moves its tiles to Other.</p>
+    </form>
+  </dialog>
+
+  <script src="newtab.js"></script>
+</body>
+</html>

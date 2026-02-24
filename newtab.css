@@ -1,0 +1,2316 @@
+/* BD_MARKER_CSS_TOP */
+
+/* =========================
+   THEME SYSTEM
+========================= */
+
+:root{
+  /* =========================
+     NAVICON DESIGN TOKENS
+     Single source of truth
+  ========================= */
+
+  /* Motion */
+  --ease-ui: cubic-bezier(.4,0,.2,1);
+  --dur-fast: 140ms;
+  --dur-ui: 180ms;
+  --dur-slow: 220ms;
+
+  /* Spacing (8px grid) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+
+  /* Elevation */
+  --shadow-0: 0 0 0 rgba(0,0,0,0);
+  --shadow-1: 0 6px 18px rgba(0,0,0,.14);   /* base */
+  --shadow-2: 0 10px 26px rgba(0,0,0,.16);  /* hover */
+  --shadow-3: 0 16px 38px rgba(0,0,0,.18);  /* dragging / modal */
+
+  /* Existing theme vars (keep these) */
+  --bg1:#0b1020;
+  --bg2:#050814;
+  --panel: rgba(255,255,255,.07);
+  --stroke: rgba(255,255,255,.14);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.62);
+  --blur: 22px;
+
+  --radius:16px;
+  --tile:160px; /* default only — your slider JS will override */
+  --accent: rgba(99,102,241,.95);
+  --accent2: rgba(16,185,129,.85);
+
+  --shadow-lg: 0 30px 90px rgba(0,0,0,.55);
+  --shadow-md: 0 16px 45px rgba(0,0,0,.40);
+  --shadow-sm: 0 10px 24px rgba(0,0,0,.30);
+}
+
+/* Apple Glass */
+html[data-theme="apple"]{
+  --bg1:#070a12;
+  --bg2:#0b1020;
+
+  --panel: rgba(255,255,255,.10);
+  --stroke: rgba(255,255,255,.18);
+  --blur: 26px;
+
+  --accent: rgba(104,182,255,.95);  /* icy blue */
+  --accent2: rgba(177,140,255,.90); /* soft violet */
+
+  --shadow-lg: 0 34px 110px rgba(0,0,0,.62);
+  --shadow-md: 0 18px 60px rgba(0,0,0,.46);
+  --shadow-sm: 0 10px 26px rgba(0,0,0,.34);
+
+  --panel: rgba(255,255,255,.12);
+}
+
+/* Warm Studio */
+html[data-theme="warm"]{
+  --bg1:#f4c6b7;     /* peach */
+  --bg2:#e8a6a1;     /* blush coral */
+
+  --text: #2a1b14;
+  --muted: #5a3b30;
+
+  --panel: rgba(255,255,255,.55);   /* soft frosted card */
+  --stroke: rgba(255,140,100,.35);
+
+  --blur: 18px;
+
+  --accent: rgba(255,120,90,.95);   /* warm coral */
+  --accent2: rgba(255,160,120,.90); /* peach glow */
+
+  --shadow-lg: 0 20px 50px rgba(180,90,60,.35);
+  --shadow-md: 0 12px 30px rgba(180,90,60,.28);
+  --shadow-sm: 0 6px 18px rgba(180,90,60,.22);
+}
+
+/* ===== Windows Original ===== */
+html[data-theme="windows"]{
+
+  --bg1:#e9eef5;      /* light desktop blue-gray */
+  --bg2:#d6dee9;
+
+  --text:#111827;     /* readable near-black */
+  --muted: #4b5563;
+
+  --panel:#ffffff;    /* white panels */
+  --stroke:#c7d1df;   /* soft gray border */
+  --blur: 0px;        /* no glass blur */
+
+  --accent:#2b579a;   /* classic Windows blue */
+  --accent2:#1f3f73;
+
+  --shadow-lg: 0 6px 18px rgba(0,0,0,.12);
+  --shadow-md: 0 4px 10px rgba(0,0,0,.08);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,.06);
+}
+
+/* =========================
+   THEME: WINDOWS ORIGINAL
+   Crisper, flatter, minimal blur
+========================= */
+:root[data-theme="windows"]{
+  --blur: 8px;
+
+  /* Sharper geometry */
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  /* Flatter elevation */
+  --shadow-1: 0 4px 12px rgba(0,0,0,.12);
+  --shadow-2: 0 8px 18px rgba(0,0,0,.14);
+  --shadow-3: 0 12px 26px rgba(0,0,0,.16);
+
+  /* Crisper stroke */
+  --stroke: #c7d1df;
+}
+
+/* =========================
+   THEME: APPLE GLASS
+   Softer, more blur, premium depth
+========================= */
+:root[data-theme="apple"]{
+  --blur: 26px;
+
+  --r-lg: 18px;
+  --r-xl: 22px;
+
+  --shadow-1: 0 8px 22px rgba(0,0,0,.16);
+  --shadow-2: 0 14px 34px rgba(0,0,0,.18);
+  --shadow-3: 0 22px 48px rgba(0,0,0,.20);
+
+  --stroke: rgba(255,255,255,.12);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+ background:
+  radial-gradient(1200px 800px at 20% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
+  radial-gradient(1000px 700px at 90% 20%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
+
+  linear-gradient(180deg, var(--bg1), var(--bg2));
+
+color: var(--text);
+
+}
+
+.topbar{
+  position:sticky; top:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 18px;
+
+  background: color-mix(in oklab, var(--panel) 70%, transparent);
+  border-bottom:1px solid var(--stroke);
+
+  backdrop-filter: blur(calc(var(--blur) * 0.45));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.45));
+
+  box-shadow: var(--shadow-sm);
+}
+
+.brand{font-weight:700; letter-spacing:.2px}
+.actions{display:flex; gap:10px}
+
+/* Group toggle switch */
+.toggleSwitch{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+}
+
+.toggleSwitch .toggleLabel{
+  font-weight:650;
+  font-size:13px;
+  line-height:1;
+}
+
+.toggleSwitch .toggleTrack{
+  width:56px;
+  height:24px;
+  border-radius:999px;
+  position:relative;
+  background:rgba(0,0,0,0.15);
+  border:1px solid rgba(255,255,255,0.25);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
+  transition: background 160ms ease;
+
+  font-size:10px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:0 6px;
+  color:#fff;
+}
+
+.toggleSwitch .toggleThumb{
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.95);
+  box-shadow:0 2px 6px rgba(0,0,0,0.18);
+  transition: transform 160ms ease;
+}
+
+/* OFF text */
+.toggleSwitch .toggleTrack::after{
+  content:"OFF";
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  color: color-mix(in srgb, var(--text) 65%, transparent);
+  pointer-events:none;
+}
+
+/* ON text */
+.toggleSwitch.isOn .toggleTrack::after{
+  content:"ON";
+  left:6px;
+  right:auto;
+  color:#ffffff;
+}
+
+/* ON state */
+.toggleSwitch.isOn .toggleTrack{
+  background: var(--accent);
+}
+
+.toggleSwitch.isOn .toggleThumb{
+  transform: translateX(32px);
+}
+
+.btn{
+  border:1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel) 70%, transparent);
+  color:var(--text);
+  padding:9px 12px;
+  border-radius:12px;
+  cursor:pointer;
+
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(calc(var(--blur) * 0.35));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.35));
+}
+.btn:hover{
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  box-shadow: var(--shadow-md);
+}
+
+.btn.primary{
+  background: color-mix(in oklab, var(--accent) 32%, var(--panel));
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--stroke));
+}
+.btn.primary:hover{
+  background: color-mix(in oklab, var(--accent) 40%, var(--panel));
+}
+
+.btn.ghost{
+  background:transparent;
+  box-shadow:none;
+}
+
+main{padding:18px}
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, var(--tile));
+  gap:14px;
+}
+
+.tile{
+  --tileEffective: var(--tileLocal, var(--tile));
+  width: var(--tileEffective);
+  height: var(--tileEffective);
+  aspect-ratio: 1 / 1;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+
+  border-radius: var(--r-lg);
+  text-align:center;
+
+  background: color-mix(in oklab, var(--panel) 85%, transparent);
+  border: 1px solid var(--stroke);
+
+  text-decoration:none;
+  color: var(--text);
+
+  position:relative;
+  overflow:visible;
+
+  box-shadow: var(--shadow-1);
+
+  backdrop-filter: blur(calc(var(--blur) * 0.6));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.6));
+
+  transition:
+    width var(--dur-ui) var(--ease-ui),
+    height var(--dur-ui) var(--ease-ui),
+    transform var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease,
+    border-color var(--dur-fast) ease;
+}
+
+.tile:hover{
+  transform: translateY(calc(var(--tile) * -0.02));
+  box-shadow: var(--shadow-2);
+}
+
+.tile .thumb{
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 44px;   /* prevents collapse in large tiles */
+  border-radius: 12px;
+
+  background: linear-gradient(135deg,
+  color-mix(in oklab, var(--accent) 45%, transparent),
+  color-mix(in oklab, var(--accent2) 35%, transparent));
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: calc(var(--tileEffective) * 0.26) calc(var(--tileEffective) * 0.26);
+
+  border:1px solid rgba(255,255,255,.10);
+}
+
+/* Center text in compact tiles */
+.groupSection.compact .tile{
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+.groupSection.compact .tile .name{
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+
+  white-space: normal;     /* allow wrapping */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;   /* max 2 lines */
+  overflow: hidden;
+}
+
+.tile .name{font-weight:650}
+
+/* URL: hidden by default; reveal on hover as a bottom popup */
+.tile .url{
+  display: none !important;
+  visibility: hidden !important;
+  display: block;              /* keep in DOM for hover reveal */
+  color: var(--muted);
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+
+  font-size: 12px;
+  line-height: 1.2;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: ellipsis;
+
+  padding: 6px 8px;
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.70);
+  backdrop-filter: blur(6px);
+}
+
+.tile:hover .url,
+.tile:focus-within .url{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* The ⋯ menu button — density aware + visual styling */
+.tileMenuBtn{
+  position:absolute;
+
+  /* Density-aware sizing */
+  width: clamp(18px, calc(var(--t) * 0.20), 34px);
+  height: clamp(18px, calc(var(--t) * 0.20), 34px);
+  font-size: clamp(12px, calc(var(--t) * 0.11), 16px);
+
+  top: clamp(6px, calc(var(--t) * 0.06), 10px);
+  right: clamp(6px, calc(var(--t) * 0.06), 10px);
+
+  border-radius: clamp(6px, calc(var(--t) * 0.08), 10px);
+  border:1px solid rgba(255,255,255,.08);
+
+  display:grid;
+  place-items:center;
+
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  line-height:1;
+
+  opacity:.55;
+  transition: opacity .15s ease, background .15s ease, transform .12s ease;
+
+  cursor:pointer;
+}
+
+.tileMenuBtn:hover{
+  opacity:1;
+  background: rgba(255,255,255,.12);
+  transform: scale(1.05);
+}
+
+/* === TILE CONTENT SHOULD SCALE WITH --tile (icons + text + menu button) === */
+.tile{
+  /* one scaling var we can reuse everywhere */
+  --t: var(--tile);
+}
+
+/* Icon area (thumb) scales with tile size */
+.tile .thumb{
+  background-size: calc(var(--t) * 0.28) calc(var(--t) * 0.28) !important;
+  border-radius: clamp(10px, calc(var(--t) * 0.08), 14px);
+}
+
+/* Text scales with tile size (stays readable small, not huge large) */
+.tile .name{
+  font-size: clamp(11px, calc(var(--t) * 0.085), 16px);
+  line-height: 1.15;
+}
+
+/* Compact group mode (when tiles get small) */
+.groupSection.compact .tile{
+  padding: 10px;
+  gap: 8px;
+}
+
+/* Compact: ultra-minimal menu button */
+.groupSection.compact .tileMenuBtn{
+  width: 16px;
+  height: 16px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 12px;
+  line-height: 1;
+
+  color: #000;           /* black dots */
+  opacity: 0.85;
+
+  border-radius: 4px;
+}
+
+.groupSection.compact .tileMenuBtn:hover{
+  background: rgba(0,0,0,.10);
+  opacity: 1;
+}
+
+ /* Keep icons readable even when tiles shrink */
+.groupSection.compact .tile .thumb{
+  background-size: 34px 34px;
+  border-radius: 10px;
+
+  min-height: 44px;
+  max-height: 44px;
+}
+
+/* Slightly reduce name size in compact mode */
+.groupSection.compact .tile .name{
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.menu{
+  position:absolute; top:46px; right:10px;
+  min-width:160px;
+
+  display:none;
+  padding:6px;
+
+  border-radius:14px;
+  border:1px solid var(--stroke);
+
+  background: color-mix(in oklab, var(--panel) 92%, rgba(0,0,0,.35));
+  box-shadow: var(--shadow-lg);
+
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+}
+
+.menu button{
+  width:100%;
+  text-align:left;
+  padding:10px 10px;
+  border:0;
+  background:transparent;
+  color:var(--text);
+  border-radius:10px;
+  cursor:pointer;
+}
+.menu button:hover{
+  background: color-mix(in oklab, var(--accent) 18%, var(--panel));
+}
+
+.divider{
+  margin:16px 0;
+  border:none;
+  border-top:1px solid var(--stroke);
+}
+
+.settingsTitle{
+  margin:0 0 10px;
+  font-size:14px;
+  color:rgba(255,255,255,.88);
+  letter-spacing:.2px;
+}
+
+.themeOptions{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
+}
+
+.themeOption{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:12px;
+
+  border:1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel) 75%, transparent);
+
+  cursor:pointer;
+  user-select:none;
+
+  box-shadow: var(--shadow-sm);
+
+  backdrop-filter: blur(calc(var(--blur) * 0.35));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.35));
+}
+
+.themeOption:hover{
+  background: color-mix(in oklab, var(--accent) 12%, var(--panel));
+  box-shadow: var(--shadow-md);
+}
+
+.themeOption input{
+  accent-color: var(--accent);
+}
+
+.form{padding:18px}
+.form h2{margin:0 0 12px}
+.form label{display:flex; flex-direction:column; gap:6px; margin:10px 0}
+.form input{
+  border:1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel) 75%, transparent);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:12px;
+  outline:none;
+
+  backdrop-filter: blur(calc(var(--blur) * 0.35));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.35));
+}
+
+.form input:focus{
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--stroke));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+/* Drag + drop states */
+.tile.dragover { outline: 2px solid rgba(255,255,255,.22); }
+.tile.dragging { opacity: .65; }
+
+
+/* Live drag visuals */
+.tile { transition: transform 160ms ease, box-shadow 160ms ease, outline-color 160ms ease, border-color 160ms ease; will-change: transform; }
+
+.tile:hover {
+  transform: translateY(calc(var(--tile) * -0.012)) scale(calc(1 + (var(--tile) / 20000)));
+  box-shadow: 0 calc(var(--tile) * 0.035) calc(var(--tile) * 0.09) rgba(0,0,0,.22);
+}
+
+.tile:active {
+  transform: translateY(calc(var(--tile) * -0.004)) scale(calc(1 + (var(--tile) / 40000)));
+}
+
+.tile.dragging { opacity: .75; transform: scale(.98); }
+
+/* Tile size slider */
+.sizeCtl{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  border:1px solid var(--stroke);
+  background:rgba(255,255,255,.06);
+  border-radius:12px;
+}
+.sizeLabel{
+  font-size:12px;
+  color:var(--muted);
+  user-select:none;
+}
+#sizeRange{
+  width: 150px;
+}
+
+/* Premium slider */
+#sizeRange{
+  width: 180px;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  outline: none;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+/* Track hover */
+#sizeRange:hover{
+  background: color-mix(in srgb, var(--accent) 25%, var(--panel));
+}
+
+/* Slider thumb */
+#sizeRange::-webkit-slider-thumb{
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* Thumb hover */
+#sizeRange::-webkit-slider-thumb:hover{
+  transform: scale(1.08);
+  box-shadow: var(--shadow-md);
+}
+
+.sizeCtl{
+  transition: transform 120ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.sizeCtl:hover{
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Smooth tile resizing */
+.tile,
+.groupSection,
+.groupGrid{
+  transition:
+  width var(--dur-ui) var(--ease-ui),
+  height var(--dur-ui) var(--ease-ui);
+}
+
+.tile{
+  transition:
+  width var(--dur-ui) var(--ease-ui),
+  height var(--dur-ui) var(--ease-ui),
+  transform var(--dur-fast) ease,
+  box-shadow var(--dur-fast) ease;
+}
+
+/* Section drop zones (especially when empty) */
+.groupGrid{
+  min-height: calc(var(--tile) + 14px);
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px dashed rgba(255,255,255,.12);
+  background: rgba(0,0,0,.12);
+}
+.groupGrid.dragover{
+  border-color: rgba(99,102,241,.55);
+  background: rgba(99,102,241,.10);
+}
+
+/* Collapsible sections */
+.groupHeader{ cursor: pointer; }
+.groupSection.collapsed .groupGrid{ display:none; }
+.groupChevron{
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.groupHeaderRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.groupMoreBtn{
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  border: 1px solid var(--stroke);
+  background: color-mix(in oklab, var(--panel) 85%, transparent);
+  color: var(--text);
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: background .15s ease, transform .1s ease, border-color .15s ease;
+}
+
+.groupMoreBtn:hover{
+  background: color-mix(in oklab, var(--accent) 25%, var(--panel));
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Section Manager */
+.sectionListWrap{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  border-radius:14px;
+  padding:10px;
+  max-height: 320px;
+  overflow:auto;
+}
+
+.sectionList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* ===== Section Manager rows (single source of truth) ===== */
+
+.sectionRow{
+  display: grid;
+  grid-template-columns: 16px 1fr auto auto;
+  align-items: center;
+  gap: 6px;
+
+  padding: 2px 4px;
+  margin-bottom: 2px;
+
+  border-radius: 10px;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.sectionRow:hover{
+  background: rgba(255,255,255,.05);
+}
+
+/* Lift while dragging */
+.sectionRow.dragging{
+  opacity: 0.95;
+  transform: scale(1.02);
+  box-shadow: 0 8px 18px rgba(0,0,0,.22);
+  z-index: 10;
+  position: relative;
+  cursor: grabbing;
+}
+
+/* Drop insertion indicator */
+.sectionRow.dropAbove,
+.sectionRow.dropBelow{
+  position: relative;
+}
+
+.sectionRow.dropAbove::before{
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 6px;
+  top: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(99,102,241,.85);
+}
+
+.sectionRow.dropBelow::after{
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 6px;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(99,102,241,.85);
+}
+
+/* Drag handle */
+.dragHandle{
+  width: 16px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.5;
+
+  border-radius: 8px;
+  user-select: none;
+  transition: opacity 120ms ease, background 120ms ease, transform 80ms ease;
+}
+
+.sectionRow:hover .dragHandle{
+  opacity: 0.9;
+}
+
+.dragHandle:hover{
+  background: rgba(255,255,255,.08);
+}
+
+.dragHandle:active{
+  cursor: grabbing;
+  transform: scale(0.94);
+}
+
+/* Input */
+.sectionRow input{
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.sectionRow input:focus{
+  border-color: rgba(99,102,241,.55);
+}
+
+/* Buttons */
+.sectionRow .miniBtn{
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 120ms ease, transform 80ms ease;
+  font-size: 13px;
+}
+
+.sectionRow .miniBtn:hover{
+  background: rgba(255,255,255,.12);
+}
+
+.sectionRow .miniBtn:active{
+  transform: scale(.96);
+}
+
+.sectionRow .danger{
+  border-color: rgba(239,68,68,.35);
+}
+
+.sectionRow .danger:hover{
+  background: rgba(239,68,68,.18);
+}
+
+.addRow{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  align-items:center;
+}
+
+.addRow input{
+  flex:1;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:12px;
+  outline:none;
+}
+
+/* Groups mode: section boxes across the page (desktop dashboard) */
+.grid.grouped{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(340px, calc(var(--tile) + 140px), 620px), 1fr));
+  gap:14px;
+}
+
+/* Section box */
+/* Smooth resizing when --tile changes */
+.groupSection,
+.groupGrid{
+  transition:
+    width var(--dur-ui) var(--ease-ui),
+    height var(--dur-ui) var(--ease-ui);
+}
+
+.groupSection{
+  border-radius: var(--r-xl);
+  padding: var(--sp-4);
+  border: 1px solid var(--stroke);
+
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+
+  box-shadow: var(--shadow-1);
+
+  transition:
+    box-shadow var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    background var(--dur-fast) ease;
+}
+
+/* Section internal tile grid */
+.groupGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, var(--tile));
+  gap:14px;
+  justify-content: start;
+  grid-auto-rows: var(--tile);
+}
+
+/* Section header (title + count + chevron) */
+.groupHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+
+padding-bottom: 10px;
+border-bottom: 1px solid var(--stroke);
+}
+
+.groupHeader:hover{
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-radius: 12px;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: calc(var(--tileEffective) * 0.26) calc(var(--tileEffective) * 0.26);
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.groupTitle{
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: .2px;
+  color: var(--text);
+}
+
+.groupHeaderRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.groupCount{
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.groupChevron{
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Make tiles fit nicely inside section boxes (always square) */
+.groupGrid .tile{
+  width: var(--tile);
+  height: var(--tile);
+  aspect-ratio: 1 / 1;
+}
+
+.groupGrid .tile .thumb{
+  flex: 1 1 auto;
+  min-height: 0;   /* prevents stretching that can distort tile height */
+}
+
+/* Ensure every section is a reliable drop target */
+.groupGrid{
+  min-height: 140px;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* Invisible drop pad to catch drops even when grid is empty */
+.dropPad{
+  position:absolute;
+  inset:0;
+  border-radius: 16px;
+}
+
+/* Drop feedback */
+.groupSection.dragover{
+  outline: 2px solid rgba(99,102,241,.55);
+  background: rgba(99,102,241,.08);
+}
+
+/* Multi-select mode */
+.btn.danger{
+  border:1px solid rgba(239,68,68,.35);
+  background: rgba(239,68,68,.14);
+}
+.btn.danger:hover{ background: rgba(239,68,68,.22); }
+
+.tileCheckWrap{
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:6;
+  width:28px;
+  height:28px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.28);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.tileCheck{
+  width:16px;
+  height:16px;
+  accent-color: #6366f1;
+}
+.tile.selected{
+  outline: 2px solid rgba(99,102,241,.55);
+  background: rgba(99,102,241,.10);
+}
+
+/* Fix: dropPad must NOT block clicks */
+.dropPad{ pointer-events:none !important; }
+
+/* Ensure checkbox UI always receives clicks */
+.tileCheckWrap, .tileCheck{
+  pointer-events:auto !important;
+  cursor:pointer;
+}
+
+/* Menu should NEVER be visible by default */
+.tile .tileMenu{
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Open state — fixed positioning above everything */
+/* Open state — supports both in-tile menus and any body-level menu */
+.tile .tileMenu.open{
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.tileMenu.open,
+body > .tileMenu.open{
+  display: block !important;
+}
+
+/* Position above everything using JS-provided coordinates (with safe fallbacks) */
+.tileMenu.open{
+  position: fixed !important;
+  top: var(--menu-top, auto) !important;
+  left: var(--menu-left, auto) !important;
+  right: auto !important;
+
+  z-index: 2147483647 !important; /* max */
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Hide ⋯ until hover (clean UI) */
+.tileMenuBtn{ opacity:0; pointer-events:none; transition: opacity .12s ease; }
+.tile:hover .tileMenuBtn{ opacity:1; pointer-events:auto; }
+
+/* =========================
+   FALLBACK (if color-mix/oklab unsupported)
+   ========================= */
+@supports not (background: color-mix(in oklab, white, black)) {
+
+  .topbar{
+    background: rgba(0,0,0,.35);
+    border-bottom: 1px solid var(--stroke);
+  }
+
+  .btn{
+    background: rgba(255,255,255,.08);
+    border: 1px solid var(--stroke);
+  }
+  .btn:hover{ background: rgba(255,255,255,.12); }
+  .btn.primary{
+    background: rgba(255,255,255,.14);
+    border-color: var(--accent);
+  }
+
+  .dialog{
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+  }
+
+  .themeOption{
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--stroke);
+  }
+  .themeOption:hover{
+    background: rgba(255,255,255,.10);
+  }
+  .themeLight .tile{
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--stroke);
+  }
+  .tile:hover{
+    border-color: var(--accent);
+  }
+
+  .menu{
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+  }
+  .menu button:hover{
+    background: rgba(255,255,255,.10);
+  }
+
+  .form input{
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--stroke);
+  }
+  .form input:focus{
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.12);
+  }
+}
+
+/* =========================
+   FORCE DIALOG STYLING
+   ========================= */
+
+dialog.dialog{
+  background: var(--panel) !important;
+  border: 1px solid var(--stroke) !important;
+  color: var(--text);
+  border-radius: 18px;
+  padding: 0;
+  box-shadow: var(--shadow-lg);
+}
+
+/* dialog.dialog::backdrop{
+  background: rgba(0,0,0,.55);
+} */
+
+.brand-logo {
+  height: 48px;
+  width: auto;
+  display: block;
+}
+.search {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.searchForm {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+}
+
+.searchInput {
+  width: 100%;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  padding: 0 20px 0 46px;
+  font-size: 16px;
+  background: var(--panel);
+  color: var(--text);
+  outline: none;
+  transition: all 0.18s ease;
+}
+
+.searchInput::placeholder {
+  color: var(--muted);
+}
+
+.searchInput:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.searchInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#settingsBtn {
+  font-size: 28px;
+  width: 53px;
+  height: 53px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================
+   TILE CONTENT SCALE (ties everything to --tile)
+========================= */
+
+:root{
+  /* “how big is a tile” drives everything */
+  --iconSize: clamp(26px, calc(var(--tile) * 0.22), 52px);
+  --nameSize: clamp(12px, calc(var(--tile) * 0.105), 18px);
+
+  --padSize: clamp(10px, calc(var(--tile) * 0.075), 16px);
+  --gapSize: clamp(6px, calc(var(--tile) * 0.045), 12px);
+
+  --kebabSize: clamp(16px, calc(var(--tile) * 0.20), 34px);
+  --kebabFont: clamp(10px, calc(var(--tile) * 0.12), 16px);
+  --kebabInset: clamp(6px, calc(var(--tile) * 0.06), 10px);
+}
+
+/* Make sure BOTH modes stay square */
+.grid:not(.grouped) .tile,
+.grid.grouped .tile{
+  aspect-ratio: 1 / 1;
+}
+
+/* Scale internal layout with the tile */
+.tile{
+  padding: var(--padSize) !important;
+  gap: var(--gapSize) !important;
+}
+
+/* Scale the icon “thumb” */
+.tile .thumb{
+  background-size: var(--iconSize) var(--iconSize) !important;
+  border-radius: clamp(10px, calc(var(--tile) * 0.08), 14px) !important;
+  min-height: 0 !important;
+}
+
+/* Scale the label text */
+.tile .name{
+  font-size: var(--nameSize) !important;
+  line-height: 1.15 !important;
+  font-weight: 650 !important;
+}
+
+/* Keep 2-line clamp readable at small sizes */
+.groupSection.compact .tile .name,
+.grid:not(.grouped) .tile .name{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.sizeControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#sizeResetBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 4px 6px;
+  line-height: 1;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+#sizeResetBtn:hover {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+#sizeResetBtn:hover {
+  opacity: 1;
+}
+
+/* ===== FIX: Settings dialog readability (Apple Glass / Warm Studio) ===== */
+dialog.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.40);
+  backdrop-filter: blur(6px);
+}
+
+dialog.dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* Default (works great for Warm Studio) */
+dialog.dialog > form.form {
+  background: var(--surface, #ffffff);
+  color: var(--text, #111111);
+
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+/* Apple Glass override: force readable text/controls inside dialogs */
+html[data-theme="apple"] dialog.dialog > form.form,
+:root[data-theme="apple"] dialog.dialog > form.form {
+  background: rgba(255, 255, 255, 0.92);
+  color: #111111;
+}
+
+html[data-theme="apple"] dialog.dialog > form.form * ,
+:root[data-theme="apple"] dialog.dialog > form.form * {
+  color: inherit;
+}
+
+html[data-theme="apple"] dialog.dialog > form.form .btn,
+:root[data-theme="apple"] dialog.dialog > form.form .btn {
+  color: #111111;
+}
+
+html[data-theme="apple"] dialog.dialog > form.form input,
+:root[data-theme="apple"] dialog.dialog > form.form input {
+  color: #111111;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+html[data-theme="apple"] .brand-logo {
+  filter: brightness(0) invert(1);
+}
+
+/* ===== Tile hover polish: highlight the whole tile, not just text ===== */
+.tile{
+  position: relative;
+  text-decoration: none;
+}
+
+.tile:hover{
+  filter: brightness(1.06);
+}
+
+.tile .name,
+.tile .url{
+  user-select: none;
+}
+
+.tile .name{
+  background: transparent !important;
+  text-decoration: none !important;
+}
+
+/* ===== Force tile lift on hover (all themes) ===== */
+.tile{
+  position: relative;
+  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+  will-change: transform;
+}
+
+.tile:hover{
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ===== Tile menu: compact + readable ===== */
+.tileMenu{
+  /* keep whatever JS does; just style it cleanly */
+  min-width: 120px !important;
+  padding: 6px !important;
+  border-radius: 12px !important;
+
+  background: rgba(20, 24, 34, .94) !important; /* solid enough to read */
+  border: 1px solid rgba(255,255,255,.14) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.45) !important;
+
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  opacity: 0;
+  transform: scale(.96);
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+.tileMenu button{
+  width: 100%;
+  display: block;
+
+  padding: 8px 10px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+
+  background: transparent !important;
+  color: rgba(255,255,255,.92) !important;
+
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  text-align: left !important;
+
+  cursor: pointer;
+}
+
+.tileMenu button:hover{
+  background: rgba(255,255,255,.10) !important;
+}
+
+.tileMenu button.danger{
+  color: rgba(255, 120, 120, .95) !important;
+}
+
+.tileMenu button.danger:hover{
+  background: rgba(255, 80, 80, .18) !important;
+}
+
+/* ===== Ensure tile menu button (⋯) is visible in all themes ===== */
+.tileMenuBtn{
+  color: rgba(255,255,255,.92) !important; /* default: visible */
+  font-weight: 800;
+}
+
+/* Warm + Windows are light backgrounds, use dark dots */
+html[data-theme="warm"] .tileMenuBtn,
+html[data-theme="windows"] .tileMenuBtn{
+  color: rgba(0,0,0,.78) !important;
+}
+
+/* Settings dialog: keep tile menu button interactive (prevents drag reorder glitch) */
+dialog.dialog .tileMenuBtn{
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.groupSection.compact .tile:hover{
+  box-shadow:
+    0 calc(var(--tile) * 0.04)
+      calc(var(--tile) * 0.08)
+      rgba(0,0,0,.15) !important;
+}
+/* =========================
+   ACTIVE / DRAG STATE
+========================= */
+.tile.dragging{
+  box-shadow: var(--shadow-3);
+  transform: scale(1.015);
+  z-index: 10;
+}
+
+/* =========================
+   RETAIL HEADER POLISH
+========================= */
+
+.topbar{
+  backdrop-filter: blur(calc(var(--blur) * 0.6));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.6));
+  border-bottom: 1px solid var(--stroke);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap: var(--sp-3);
+}
+
+.brand-logo{
+  height: 28px;
+  width: auto;
+}
+
+.brandText{
+  display:flex;
+  flex-direction:column;
+  line-height:1.1;
+}
+
+.brandName{
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  color: var(--text);
+}
+
+.brandMeta{
+  display:flex;
+  align-items:center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.brandTagline{
+  opacity:.85;
+}
+
+.brandDot{
+  opacity:.4;
+}
+
+.versionPill{
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  background: color-mix(in oklab, var(--panel) 80%, transparent);
+  border: 1px solid var(--stroke);
+  font-size: 10px;
+  letter-spacing: .3px;
+}
+
+/* =========================
+   SEARCH SHORTCUT HINT
+========================= */
+
+.searchForm{
+  position: relative;
+}
+
+.kbdHint{
+  position: absolute;
+  right: var(--sp-3);
+  top: 50%;
+  transform: translateY(-50%);
+
+  font-size: 11px;
+  letter-spacing: .3px;
+
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+
+  background: color-mix(in oklab, var(--panel) 85%, transparent);
+  border: 1px solid var(--stroke);
+
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* =========================
+   SEARCH: PREMIUM FOCUS STATE
+========================= */
+.searchInput{
+  transition:
+    box-shadow var(--dur-fast) var(--ease-ui),
+    border-color var(--dur-fast) var(--ease-ui),
+    background var(--dur-fast) var(--ease-ui);
+}
+
+.searchForm:focus-within .searchInput{
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--stroke));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+/* =========================
+   TOPBAR SPACING REFINEMENT
+========================= */
+.topbar{
+  padding: var(--sp-3) var(--sp-4);
+  gap: var(--sp-4);
+}
+
+.topbar .actions{
+  gap: var(--sp-2);
+}
+
+.topbar .btn{
+  border-radius: var(--r-md);
+}
+
+/* =========================
+   FIRST-RUN ADD HINT
+========================= */
+.addWrap{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.firstRunHint{
+  margin-left: var(--sp-2);
+  padding: 6px 10px;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  letter-spacing: .2px;
+
+  color: #ff4d4f;
+  border: 1px solid rgba(255,77,79,.45);
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  border: 1px solid var(--stroke);
+
+  box-shadow: var(--shadow-2);
+  white-space: nowrap;
+
+  animation: naviconPulse 1.25s var(--ease-ui) infinite;
+}
+
+@keyframes naviconPulse{
+  0%, 100% { transform: translateY(0); opacity: .85; }
+  50%      { transform: translateY(-1px); opacity: 1; }
+}
+
+/* =========================
+   SETTINGS ACTIONS SPACING
+========================= */
+.settingsActions{
+  margin-top: var(--sp-4);
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   Layout Mode Segmented Control
+========================= */
+
+.segmented{
+  display:inline-flex;
+  align-items:center;
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  padding: 4px;
+  gap: 4px;
+  box-shadow: var(--shadow-0);
+}
+
+.segBtn{
+  appearance:none;
+  border:0;
+  background: transparent;
+  color: var(--text-secondary, rgba(255,255,255,0.7));
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--r-md);
+  cursor:pointer;
+  transition:
+    background var(--dur-ui) var(--ease-ui),
+    color var(--dur-ui) var(--ease-ui),
+    transform var(--dur-fast) var(--ease-ui);
+}
+
+.segBtn:hover{
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary, #fff);
+}
+
+.segBtn[aria-checked="true"]{
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  box-shadow: var(--shadow-1);
+}
+
+.segBtn:active{
+  transform: scale(0.96);
+}
+
+.segBtn{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+}
+
+.segIcon{
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.95;
+}
+
+.segIcon rect,
+.segIcon path{
+  vector-effect: non-scaling-stroke;
+}
+/* Ensure layout mode control is clickable (avoid overlay hit-testing issues) */
+#layoutModeControl{
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+#layoutModeControl,
+#layoutModeControl *{
+  pointer-events: auto;
+}
+
+/* =========================
+   Folders Mode
+========================= */
+
+.folderTile:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  background: rgba(255,255,255,0.10);
+}
+
+.folderHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.folderTitle{
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+
+  /* reserve room for top-right badge so text can't go underneath */
+  padding-right: 34px;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+
+  overflow: hidden;
+  white-space: normal;
+}
+
+.folderCount{
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  background: rgba(0,0,0,0.22);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.folderPreview{
+  flex: 1;
+  min-height: 0;
+
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+
+  border-radius: var(--r-lg);
+  background: rgba(0,0,0,0.18);
+  padding: 12px;
+}
+
+.folderPreviewItem{
+  border-radius: 12px;
+  background-color: rgba(255,255,255,0.06);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.folderPreviewItem.isEmpty{
+  opacity: 0.35;
+}
+
+.folderPreviewImg{
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display:block;
+}
+
+/* =========================
+   Folder Modal
+========================= */
+
+.folderOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-ui) var(--ease-ui);
+}
+
+.folderOverlay.open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.folderModal{
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.98);
+  width: min(920px, calc(100vw - 48px));
+  max-height: min(78vh, 820px);
+
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--stroke);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow-lg);
+  z-index: 9999;
+
+  opacity: 0;
+  pointer-events: none;
+
+  display:flex;
+  flex-direction: column;
+
+  transition:
+  opacity var(--dur-ui) var(--ease-ui),
+  transform var(--dur-ui) var(--ease-ui),
+  filter var(--dur-ui) var(--ease-ui);
+     filter: blur(2px);
+}
+
+.folderModal.open{
+  opacity: 1;
+  pointer-events: auto;
+  filter: blur(0);
+
+  /* micro-spring */
+  animation: folderModalPop 180ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .folderModal,
+  .folderOverlay{
+    transition: none !important;
+    animation: none !important;
+  }
+  .folderModal.open{
+    transform: translate(-50%, -50%) scale(1) !important;
+  }
+}
+
+@keyframes folderModalPop{
+  0%   { transform: translate(-50%, -50%) scale(0.985); }
+  60%  { transform: translate(-50%, -50%) scale(1.01); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.folderModalHead{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.folderModalTitle{
+  font-size: 15px;
+  font-weight: 650;
+  color: #fff;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.folderModalClose{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.folderModalBody{
+  padding: 14px 16px 16px;
+  overflow: auto;
+}
+
+.folderInnerGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr));
+  gap: 14px;
+}
+
+/* Folder modal: reduce clutter */
+.folderInnerGrid .tileMenuBtn,
+.folderInnerGrid .tileMenu{
+  display: none !important;
+}
+
+/* Folders mode: keep folder tiles square + enforce larger minimum */
+.grid.folders .folderTile{
+  width: var(--tileFolder, 140px);
+  height: var(--tileFolder, 140px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header/title area */
+.folderHead{
+  padding: 0;
+  margin: 0 0 6px 0;
+}
+
+.folderTitle{
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff;
+  padding-right: 34px;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+
+  overflow: hidden;
+  white-space: normal;
+}
+
+/* Count badge overlay (top-right) */
+.folderCountBadge{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.28);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+#grid.folders .folderTile{
+  width: var(--tileFolder, 140px) !important;
+  height: var(--tileFolder, 140px) !important;
+}
+
+/* =========================
+   Premium polish (Folders)
+========================= */
+
+/* smoother motion + subtle depth */
+#grid.folders .folderTile{
+  transition:
+    transform var(--dur-ui) var(--ease-ui),
+    box-shadow var(--dur-ui) var(--ease-ui),
+    background var(--dur-ui) var(--ease-ui);
+  will-change: transform;
+}
+
+/* Folders: premium full-tile lift (restrained, no scaling) */
+#grid.folders .folderTile{
+  border: 1px solid rgba(255,255,255,0.08);
+  transition:
+    transform var(--dur-ui) var(--ease-ui),
+    box-shadow var(--dur-ui) var(--ease-ui),
+    background var(--dur-ui) var(--ease-ui),
+    border-color var(--dur-ui) var(--ease-ui);
+  will-change: transform;
+}
+
+#grid.folders .folderTile:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.14);
+}
+
+/* ensure preview doesn't lift independently */
+#grid.folders .folderTile:hover .folderPreview{
+  transform: none !important;
+}
+
+/* crisp highlight ring on hover/focus (high-end feel) */
+#grid.folders .folderTile:focus-visible{
+  outline: 2px solid rgba(255,255,255,0.28);
+  outline-offset: 2px;
+}
+
+/* Folders mode: smooth slider resizing (Folders only) */
+#grid.folders{
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(var(--tileFolder, 120px), 1fr)) !important;
+  gap: 14px !important;
+  align-content: start;
+}
+
+#grid.folders .folderTile{
+  transition:
+    width 120ms var(--ease-ui),
+    height 120ms var(--ease-ui),
+    transform var(--dur-ui) var(--ease-ui),
+    box-shadow var(--dur-ui) var(--ease-ui),
+    background var(--dur-ui) var(--ease-ui),
+    border-color var(--dur-ui) var(--ease-ui);
+}
+
+/* Folders: base card surface (was lost during cleanup) */
+#grid.folders .folderTile{
+  border-radius: var(--r-xl);
+  background: color-mix(in oklab, var(--panel) 45%, transparent);
+  border: 1px solid color-mix(in oklab, var(--stroke) 55%, transparent);
+  box-shadow: var(--shadow-1);
+  color: var(--text);
+}
+
+/* =========================
+   LIGHT THEMES TEXT FIX
+   (Warm Studio + Windows Original)
+   Ensures all UI text stays readable on light backgrounds
+========================= */
+html[data-theme="warm"],
+html[data-theme="windows"]{
+  color: var(--text);
+}
+
+/* Topbar / brand */
+html[data-theme="warm"] .topbar,
+html[data-theme="windows"] .topbar{
+  color: var(--text);
+}
+
+html[data-theme="warm"] .brandTagline,
+html[data-theme="windows"] .brandTagline,
+html[data-theme="warm"] .kbdHint,
+html[data-theme="windows"] .kbdHint{
+  color: var(--muted);
+}
+
+/* Buttons + segmented control labels */
+html[data-theme="warm"] .btn,
+html[data-theme="windows"] .btn,
+html[data-theme="warm"] .segBtn,
+html[data-theme="windows"] .segBtn{
+  color: var(--text);
+}
+
+html[data-theme="warm"] .segBtn[aria-checked="true"],
+html[data-theme="windows"] .segBtn[aria-checked="true"]{
+  color: var(--text);
+}
+
+/* Tiles (Flat + Sections) */
+html[data-theme="warm"] .tile .name,
+html[data-theme="windows"] .tile .name{
+  color: var(--text);
+}
+
+html[data-theme="warm"] .tile .url,
+html[data-theme="windows"] .tile .url{
+  color: var(--muted);
+}
+
+/* Section headers (Sections mode) */
+html[data-theme="warm"] .groupHeader,
+html[data-theme="windows"] .groupHeader{
+  color: var(--text);
+}
+
+/* Folder tiles (Folders mode) */
+html[data-theme="warm"] .folderTitle,
+html[data-theme="windows"] .folderTitle{
+  color: var(--text);
+}
+
+html[data-theme="warm"] .folderCountBadge,
+html[data-theme="windows"] .folderCountBadge{
+  color: var(--text);
+  background: rgba(0,0,0,0.10);
+  border-color: rgba(0,0,0,0.12);
+}
+
+/* Dialog / settings */
+html[data-theme="warm"] dialog,
+html[data-theme="windows"] dialog{
+  color: var(--text);
+}
+
+html[data-theme="warm"] dialog label,
+html[data-theme="windows"] dialog label{
+  color: var(--text);
+}
+
+/* =========================
+   PREMIUM INTERACTION POLISH
+========================= */
+
+/* Unified focus ring (keyboard) */
+:where(button, a, input, [role="radio"]):focus-visible{
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+/* Softer hover sheen on controls */
+.btn:hover,
+.segBtn:hover{
+  box-shadow: var(--shadow-1);
+}
+
+/* Make segmented selection feel crisper */
+.segmented{
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stroke) 75%, transparent);
+}
+.segBtn[aria-checked="true"]{
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--stroke) 65%, transparent),
+    var(--shadow-sm);
+}
+
+/* Light themes: softer overlay so it doesn't feel like a dark mode takeover */
+html[data-theme="warm"] .folderOverlay,
+html[data-theme="windows"] .folderOverlay{
+  background: rgba(0,0,0,0.20);
+}
+
+.folderModal .folderModalHeader,
+.folderModal .folderModalTitle{
+  color: var(--text);
+}
+
+html[data-theme="warm"] .folderModal button,
+html[data-theme="windows"] .folderModal button{
+  color: var(--text);
+}
+
+.groupMoreBtn{
+  gap:8px;
+}
+
+.groupMoreBtn.isCollapsedLabel{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.groupMoreBtn:not(.isCollapsedLabel){
+  /* Expanded state becomes icon-like */
+  width: 34px;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  text-indent: -9999px; /* hide text */
+  position: relative;
+}
+
+.groupMoreBtn:not(.isCollapsedLabel)::after{
+  content: "⌃";
+  text-indent: 0;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+/* =========================
+   FOLDERS — FINAL OVERRIDE (authoritative)
+   Fixes title clipping + preview icon scaling
+========================= */
+
+/* Folder tile: always square, always driven by --tileFolder (never --tile) */
+#grid.folders .folderTile{
+  width: var(--tileFolder, 120px) !important;
+  height: var(--tileFolder, 120px) !important;
+
+  display: flex;
+  flex-direction: column;
+
+  /* Use consistent internal spacing that scales */
+  padding: clamp(10px, calc(var(--tileFolder) * 0.07), 14px);
+  gap: clamp(8px, calc(var(--tileFolder) * 0.05), 12px);
+
+  overflow: hidden;
+}
+
+/* Title lane: guaranteed space, never overlaps preview */
+#grid.folders .folderHead{
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  align-items: flex-start;
+}
+
+#grid.folders .folderTitle{
+  color: var(--text);
+  font-weight: 800;
+
+  /* Scale safely */
+  font-size: clamp(12px, calc(var(--tileFolder) * 0.09), 14px);
+  line-height: 1.15;
+
+  /* Clamp to 2 lines but prevent clipping */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+
+  /* reserve space for badge */
+  padding-right: 34px;
+}
+
+/* Count badge: keep it crisp and readable */
+#grid.folders .folderCount,
+#grid.folders .folderCountBadge{
+  color: var(--text);
+  background: color-mix(in oklab, var(--panel) 55%, transparent);
+  border: 1px solid color-mix(in oklab, var(--stroke) 70%, transparent);
+}
+
+/* Preview area: takes remaining space naturally (no calc() magic numbers) */
+#grid.folders .folderPreview{
+  flex: 1 1 auto;
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
+  gap: clamp(6px, calc(var(--tileFolder) * 0.045), 10px);
+
+  padding: clamp(10px, calc(var(--tileFolder) * 0.07), 14px);
+  border-radius: var(--r-lg);
+
+  background: color-mix(in oklab, var(--panel) 35%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--stroke) 55%, transparent);
+}
+
+/* Preview icon boxes: stable geometry */
+#grid.folders .folderPreviewItem{
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--panel) 25%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--stroke) 45%, transparent);
+}
+
+/* Icons: scale smoothly and consistently */
+#grid.folders .folderPreviewImg{
+  width: clamp(18px, calc(var(--tileFolder) * 0.16), 30px);
+  height: clamp(18px, calc(var(--tileFolder) * 0.16), 30px);
+  object-fit: contain;
+  display: block;
+}
+
+/* Multi-line clamp utility */
+.clamp-2{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* END */

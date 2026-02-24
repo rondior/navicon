@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Navicon (New Tab)",
+  "short_name": "Navicon",
+  "version": "0.1.0",
+  "description": "Transform your browser into a fully customizable visual hub. Powerful, icon-driven, and designed for clean, focused navigation.",
+  "icons": {
+    "16": "assets/navicon-logo-square-16.png",
+    "48": "assets/navicon-logo-square-48.png",
+    "128": "assets/navicon-logo-square-128.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": [
+    "storage"
+  ]
+}
