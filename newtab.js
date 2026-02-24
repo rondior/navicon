@@ -165,7 +165,7 @@ async function loadSettings() {
 // Pro / promo flags
 // promoFreeFolders: true = folders available to everyone (launch mode)
 // proEnabled: true = user has lifetime unlock (future)
-if (typeof s.promoFreeFolders !== "boolean") s.promoFreeFolders = false;
+if (typeof s.promoFreeFolders !== "boolean") s.promoFreeFolders = true;
 if (typeof s.proEnabled !== "boolean") s.proEnabled = false;
 
   // Coerce tileSize to a number (handles legacy string values like "110")
