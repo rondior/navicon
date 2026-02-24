@@ -12,13 +12,9 @@ const addForm = document.getElementById("addForm");
 const addCancelBtn = addDialog?.querySelector('button[value="cancel"]');
 const nameInput = document.getElementById("nameInput");
 const urlInput = document.getElementById("urlInput");
+const sectionSelect = document.getElementById("sectionSelect");
 const sizeRange = document.getElementById("sizeRange");
 const sizeResetBtn = document.getElementById("sizeResetBtn");
-const layoutModeControl = document.getElementById("layoutModeControl");
-const settingsDialog = document.getElementById("settingsDialog");
-const sectionList = document.getElementById("sectionList");
-const newSectionName = document.getElementById("newSectionName");
-const addSectionBtn = document.getElementById("addSectionBtn");
 
 const STORAGE_KEY = "navicon.links";
 const SETTINGS_KEY = "navicon.settings";
@@ -1296,11 +1292,27 @@ if (layoutModeControl) {
 await loadLinksEnsured();
 render();
 
-  addBtn.addEventListener("click", () => {
-    nameInput.value = "";
-    urlInput.value = "";
-    addDialog.showModal();
-  });
+  addBtn.addEventListener("click", async () => {
+  nameInput.value = "";
+  urlInput.value = "";
+
+  if (sectionSelect) {
+    const s = await loadSettings();
+    const groups = Array.isArray(s.groups) ? s.groups : DEFAULT_GROUPS;
+
+    // Reset options
+    sectionSelect.innerHTML = `<option value="">Auto (General)</option>`;
+
+    groups.forEach(g => {
+      const opt = document.createElement("option");
+      opt.value = g;
+      opt.textContent = g;
+      sectionSelect.appendChild(opt);
+    });
+  }
+
+  addDialog.showModal();
+});
 
   addCancelBtn?.addEventListener("click", () => addDialog.close());
   addDialog?.addEventListener("click", (e) => {
@@ -1315,7 +1327,14 @@ render();
 
     const links = await loadLinksEnsured();
     const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-    const group = await ensureValidGroup(suggestGroup(host));
+    let group = "";
+    const chosen = sectionSelect ? String(sectionSelect.value || "").trim() : "";
+
+      if (chosen) {
+      group = await ensureValidGroup(chosen);
+    } else {
+      group = await ensureValidGroup(suggestGroup(host));
+    }
 
     links.push({ id: makeId(), name, url, group });
     await saveLinks(links);
