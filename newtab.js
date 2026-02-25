@@ -25,10 +25,26 @@ const LEGACY_SETTINGS_KEY = "betterDial.settings";
 const TILE_PRESETS = [140, 180, 240];
 
 // Your default sections (in order)
-const DEFAULT_GROUPS = ["General", "Other"];
+const DEFAULT_GROUPS = ["Google", "Other"];
 
 let draggedEl = null;
 let renderToken = 0;
+
+/* =========================
+   Toast helper
+========================= */
+function showToast(message, ms = 2600) {
+  const el = document.getElementById("toast");
+  if (!el) return;
+
+  el.textContent = message;
+  el.classList.add("show");
+
+  window.clearTimeout(showToast._t);
+  showToast._t = window.setTimeout(() => {
+    el.classList.remove("show");
+  }, ms);
+}
 
 // Global: click anywhere closes any open tile menus (portal-safe)
 document.addEventListener("click", (e) => {
@@ -323,21 +339,32 @@ async function ensureValidGroup(name) {
 }
 
 function applyTileSize(px) {
-  const min = 82;
-  const max = 200;
-  const v = Math.max(min, Math.min(max, Number(px) || 160));
+  const root = document.documentElement;
+  const mode = root.dataset.layoutMode || "flat";
 
-  // Raw slider value (Flat + Sections always use this)
-  document.documentElement.style.setProperty("--tile", v + "px");
+  // Flat + Sections: allow the new smaller min
+  const min = 64;
+  const max = 160;
 
-  // Folders: map slider range [82..200] -> [140..200] so it grows immediately from far-left
+  // Raw slider value (what the user is trying to set)
+  const raw = Math.max(min, Math.min(max, Number(px) || 160));
+
+  // Folders must never go below 82 (both visually + saved state)
+  const effective = (mode === "folders") ? Math.max(raw, 82) : raw;
+
+  // Apply base tile size (used by Flat + Sections, and shared UI sizing)
+  root.style.setProperty("--tile", effective + "px");
+
+  // Folders: map slider range [82..200] -> [120..200]
+  // (kept as-is, but based on the effective value so it never goes negative)
   const vMin = 82, vMax = 200;
   const fMin = 120, fMax = 200;
-  const t = (v - vMin) / (vMax - vMin);
+  const t = (effective - vMin) / (vMax - vMin);
   const vf = Math.round(fMin + Math.max(0, Math.min(1, t)) * (fMax - fMin));
-  document.documentElement.style.setProperty("--tileFolder", vf + "px");
+  root.style.setProperty("--tileFolder", vf + "px");
 
-  if (sizeRange) sizeRange.value = String(v);
+  // Keep the slider thumb in sync with what actually applied
+  if (sizeRange) sizeRange.value = String(effective);
 }
 
 async function ensureIds(links) {
@@ -478,10 +505,42 @@ function applyThumb(thumb, url) {
   }
 })();
 
-  // Favicon fallback chain:
+  // High-quality overrides for Google app domains (prevents blurry generic "G")
+  const googleIconOverrides = [
+    { re: /(^|\.)mail\.google\.com$/,     url: "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" },
+    { re: /(^|\.)drive\.google\.com$/,    url: "https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_96dp.png" },
+    { re: /(^|\.)docs\.google\.com$/,     url: "https://ssl.gstatic.com/images/branding/product/2x/docs_2020q4_96dp.png" },
+    { re: /(^|\.)sheets\.google\.com$/,   url: "https://ssl.gstatic.com/images/branding/product/2x/sheets_2020q4_96dp.png" },
+    { re: /(^|\.)slides\.google\.com$/,   url: "https://ssl.gstatic.com/images/branding/product/2x/slides_2020q4_96dp.png" },
+    { re: /(^|\.)calendar\.google\.com$/, url: "https://ssl.gstatic.com/images/branding/product/2x/calendar_2020q4_96dp.png" },
+    { re: /(^|\.)meet\.google\.com$/,     url: "https://ssl.gstatic.com/images/branding/product/2x/meet_2020q4_96dp.png" },
+  ];
+
+  const override = host ? googleIconOverrides.find(x => x.re.test(host)) : null;
+  if (override) {
+    thumb.style.backgroundImage = `url("${override.url}")`;
+    return;
+  }
+
+    // Favicon fallback chain (high-res first to reduce blur)
   const faviconCandidates = host ? [
-  `https://www.google.com/s2/favicons?domain=${host}&sz=128`
-] : [];
+    // Best general-purpose: higher-res Google S2
+    `https://www.google.com/s2/favicons?domain=${host}&sz=256`,
+
+    // Often returns better source artwork for many domains
+    `https://icon.horse/icon/${host}`,
+
+    // Common site-hosted icon locations
+    `https://${host}/apple-touch-icon.png`,
+    `https://${host}/apple-touch-icon-precomposed.png`,
+    `https://${host}/favicon-32x32.png`,
+    `https://${host}/favicon-48x48.png`,
+    `https://${host}/favicon.png`,
+    `https://${host}/favicon.ico`,
+
+    // Last resort
+    `https://icons.duckduckgo.com/ip3/${host}.ico`
+  ] : [];
 
   const img = new Image();
   let i = 0;
@@ -1086,10 +1145,84 @@ async function render() {
   grid.innerHTML = "";
 
   const links = await loadLinksEnsured();
+
+  // First install: seed Google apps + set first-run defaults
+if (Array.isArray(links) && links.length === 0) {
+
+  const googleLinks = [
+    { name: "Gmail", url: "https://mail.google.com" },
+    { name: "YouTube", url: "https://youtube.com" },
+    { name: "Drive", url: "https://drive.google.com" },
+    { name: "Docs", url: "https://docs.google.com" },
+    { name: "Sheets", url: "https://sheets.google.com" },
+    { name: "Calendar", url: "https://calendar.google.com" },
+    { name: "Meet", url: "https://meet.google.com" },
+    { name: "Gemini", url: "https://gemini.google.com" },
+    { name: "Google", url: "https://google.com" }
+  ];
+
+  const seeded = googleLinks.map((l, i) => ({
+    id: "seed-" + i + "-" + Date.now(),
+    name: l.name,
+    url: l.url,
+    group: "Google"
+  }));
+
+  // Merge with existing settings (safe) and force first-run experience
+  const existing = await loadSettings();
+  const seededSettings = {
+  ...existing,
+  theme: "google",
+  layoutMode: "sections",
+  groupMode: true,
+  tileSize: 64,
+  tileSizeUserSet: true,
+  expandedGroups: {
+    ...(existing.expandedGroups || {}),
+    Google: true
+  }
+};
+
+  await chrome.storage.local.set({
+    [STORAGE_KEY]: seeded,
+    [SETTINGS_KEY]: seededSettings
+  });
+
+  showToast("We’ve added popular Google apps to get you started.", 6000);
+
+  // Force re-render after seeding
+  render();
+  return;
+}
+
   if (token !== renderToken) return;
 
   const s = await loadSettings();
+
+  // Ensure tile size CSS var is applied before any layout is rendered
+if (typeof s.tileSize === "number" && s.tileSize > 0) {
+  document.documentElement.style.setProperty("--tile", `${s.tileSize}px`);
+}
+
   const layoutMode = s.layoutMode || (s.groupMode ? "sections" : "flat");
+
+  // Sync top-bar UI to settings (layout buttons + slider)
+try {
+  // Layout segmented control (buttons use data-mode)
+  document.querySelectorAll('button[data-mode]').forEach(btn => {
+    const mode = btn.getAttribute("data-mode");
+    const active = (mode === layoutMode);
+
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-checked", active ? "true" : "false");
+  });
+
+  // Tile size slider (id is sizeRange in newtab.html)
+  const sizeRange = document.getElementById("sizeRange");
+  if (sizeRange && typeof s.tileSize === "number") {
+    sizeRange.value = String(s.tileSize);
+  }
+} catch {}
 
   await updateProBadges();  // ← ADD THIS LINE HERE
 
@@ -1160,7 +1293,7 @@ async function render() {
   const s = await loadSettings();
 
   // --- Theme (default: apple) ---
-  const theme = (s.theme === "warm" || s.theme === "apple" || s.theme === "windows") ? s.theme : "apple";
+  const theme = (s.theme === "warm" || s.theme === "apple" || s.theme === "windows" || s.theme === "google") ? s.theme : "google";
   document.documentElement.dataset.theme = theme;
 
   // set the radio button state
@@ -1188,6 +1321,13 @@ if (!s.tileSizeUserSet) {
   }
 }
 
+// Ensure the root knows the active layout mode BEFORE any sizing happens
+{
+  const root = document.documentElement;
+  const lm = s.layoutMode || (s.groupMode ? "sections" : "flat");
+  root.dataset.layoutMode = lm;
+}
+
 applyTileSize(s.tileSize ?? 160);
 
 if (sizeRange) {
@@ -1206,22 +1346,32 @@ sizeRange.addEventListener("input", (e) => {
   });
 });
   sizeRange.addEventListener("change", async (e) => {
-    const cur = await loadSettings();
-    cur.tileSize = Number(e.target.value) || 160;
-    cur.tileSizeUserSet = true;
-    await saveSettings(cur);
-  });
+  const cur = await loadSettings();
+
+  const root = document.documentElement;
+  const mode = root.dataset.layoutMode || "flat";
+
+  const raw = Number(e.target.value) || 160;
+  const effective = (mode === "folders") ? Math.max(raw, 82) : raw;
+
+  cur.tileSize = effective;
+  cur.tileSizeUserSet = true;
+  await saveSettings(cur);
+
+  // Ensure the slider thumb reflects what actually got saved (folders can't be < 82)
+  if (sizeRange) sizeRange.value = String(effective);
+});
 }
 
 if (sizeResetBtn) {
   sizeResetBtn.addEventListener("click", async () => {
     const cur = await loadSettings();
-    cur.tileSize = 82;
+    cur.tileSize = 64;
     cur.tileSizeUserSet = true;
     await saveSettings(cur);
 
-    if (sizeRange) sizeRange.value = "82";
-    applyTileSize(82);
+    if (sizeRange) sizeRange.value = "64";
+    applyTileSize(64);
   });
 }
 
@@ -1240,6 +1390,8 @@ if (layoutModeControl) {
   (async () => {
     const s = await loadSettings();
     paint(s.layoutMode || (s.groupMode ? "sections" : "flat"));
+    // Keep root dataset in sync so applyTileSize() always knows the real mode
+    document.documentElement.dataset.layoutMode = (s.layoutMode || (s.groupMode ? "sections" : "flat"));
   })();
 
   // Click handler: set layoutMode, persist, repaint, then render
@@ -1282,9 +1434,9 @@ if (layoutModeControl) {
 
     await saveSettings(s2);
     paint(nextMode);
+    document.documentElement.dataset.layoutMode = nextMode;
 
-    // Rendering is still stable: flat vs sections controlled by groupMode today.
-    // Folders mode will temporarily behave like sections until we implement folders renderer.
+    // Rendering is still stable...
     await render();
   });
 }

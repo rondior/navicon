@@ -340,23 +340,6 @@ main{padding:18px}
   box-shadow: var(--shadow-2);
 }
 
-.tile .thumb{
-  flex: 1 1 auto;
-  width: 100%;
-  min-height: 44px;   /* prevents collapse in large tiles */
-  border-radius: 12px;
-
-  background: linear-gradient(135deg,
-  color-mix(in oklab, var(--accent) 45%, transparent),
-  color-mix(in oklab, var(--accent2) 35%, transparent));
-
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: calc(var(--tileEffective) * 0.26) calc(var(--tileEffective) * 0.26);
-
-  border:1px solid rgba(255,255,255,.10);
-}
-
 /* Center text in compact tiles */
 .groupSection.compact .tile{
   text-align: center;
@@ -458,12 +441,6 @@ main{padding:18px}
   --t: var(--tile);
 }
 
-/* Icon area (thumb) scales with tile size */
-.tile .thumb{
-  background-size: calc(var(--t) * 0.28) calc(var(--t) * 0.28) !important;
-  border-radius: clamp(10px, calc(var(--t) * 0.08), 14px);
-}
-
 /* Text scales with tile size (stays readable small, not huge large) */
 .tile .name{
   font-size: clamp(11px, calc(var(--t) * 0.085), 16px);
@@ -501,21 +478,6 @@ main{padding:18px}
 .groupSection.compact .tileMenuBtn:hover{
   background: rgba(0,0,0,.10);
   opacity: 1;
-}
-
- /* Keep icons readable even when tiles shrink */
-.groupSection.compact .tile .thumb{
-  background-size: 34px 34px;
-  border-radius: 10px;
-
-  min-height: 44px;
-  max-height: 44px;
-}
-
-/* Slightly reduce name size in compact mode */
-.groupSection.compact .tile .name{
-  font-size: 12px;
-  line-height: 1.1;
 }
 
 .menu{
@@ -1037,11 +999,6 @@ border-bottom: 1px solid var(--stroke);
   aspect-ratio: 1 / 1;
 }
 
-.groupGrid .tile .thumb{
-  flex: 1 1 auto;
-  min-height: 0;   /* prevents stretching that can distort tile height */
-}
-
 /* Ensure every section is a reliable drop target */
 .groupGrid{
   min-height: 140px;
@@ -1282,15 +1239,20 @@ dialog.dialog{
 
 :root{
   /* “how big is a tile” drives everything */
-  --iconSize: clamp(26px, calc(var(--tile) * 0.22), 52px);
-  --nameSize: clamp(12px, calc(var(--tile) * 0.105), 18px);
+  --iconSize: clamp(28px, calc(var(--tile) * 0.46), 72px);
+  --nameSize: clamp(10px, calc(var(--tile) * 0.11), 18px);
 
-  --padSize: clamp(10px, calc(var(--tile) * 0.075), 16px);
-  --gapSize: clamp(6px, calc(var(--tile) * 0.045), 12px);
+/* smaller minimums so 64px tiles still have label room */
+  --padSize: clamp(6px,  calc(var(--tile) * 0.07), 16px);
+  --gapSize: clamp(4px,  calc(var(--tile) * 0.04), 12px);
 
   --kebabSize: clamp(16px, calc(var(--tile) * 0.20), 34px);
   --kebabFont: clamp(10px, calc(var(--tile) * 0.12), 16px);
   --kebabInset: clamp(6px, calc(var(--tile) * 0.06), 10px);
+
+  /* NEW: icon box + padding (prevents Drive/Sheets “shave” + caps blur at large sizes) */
+  --thumbBox: clamp(26px, calc(var(--tile) * 0.46), 76px);
+  --thumbPad: clamp(1px, calc(var(--tile) * 0.015), 3px);
 }
 
 /* Make sure BOTH modes stay square */
@@ -1307,7 +1269,24 @@ dialog.dialog{
 
 /* Scale the icon “thumb” */
 .tile .thumb{
-  background-size: var(--iconSize) var(--iconSize) !important;
+  /* Always render icons safely */
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+
+  /* Cap the box so icons never blow up and blur at large tile sizes */
+  width: var(--thumbBox) !important;
+  height: var(--thumbBox) !important;
+  flex: 0 0 auto !important;
+
+  /* Tiny breathing room prevents Drive/Sheets shaving */
+  padding: var(--thumbPad) !important;
+  background-origin: content-box !important;
+  background-clip: content-box !important;
+
+  /* Keep aspect ratio and never crop */
+  background-size: contain !important;
+
+  /* Keep the thumb shape consistent */
   border-radius: clamp(10px, calc(var(--tile) * 0.08), 14px) !important;
   min-height: 0 !important;
 }
