@@ -397,11 +397,20 @@ main{padding:18px}
   box-shadow: var(--shadow-2);
 }
 
-/* Center text in compact tiles */
+/* Compact tile adjustments (clean spacing + proper label breathing room) */
 .groupSection.compact .tile{
   text-align: center;
+
+  /* Slightly tighter corner + lighter shadow for small mode */
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,.12);
+
+  /* Critical: give label room without distorting layout */
+  padding-top: calc(var(--padSize) - 2px);
+  padding-bottom: calc(var(--padSize) + 8px);
+
+  /* Keep layout stable */
+  align-items: center;
 }
 
 .groupSection.compact .tile .name{
@@ -498,10 +507,22 @@ main{padding:18px}
 
 /* NOTE: label sizing is controlled by the authoritative TILE CONTENT SCALE block below */
 
-/* Compact group mode (when tiles get small) */
+/* Compact group mode: keep width fixed, allow height to grow for 2-line labels */
 .groupSection.compact .tile{
-  padding: 10px;
-  gap: 8px;
+  gap: 6px;
+
+  /* Keep the compact width, but don’t force a perfect square */
+  width: var(--tileEffective);
+  height: auto !important;
+  min-height: var(--tileEffective);
+  aspect-ratio: auto !important;
+
+  padding-top: 8px !important;
+  padding-bottom: 10px !important;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Compact: ultra-minimal menu button */
@@ -1366,22 +1387,21 @@ dialog.dialog{
 }
 
 /* Keep 2-line clamp readable at small sizes (no 2nd-line shaving) */
-.groupSection.compact .tile .name,
-.grid:not(.grouped) .tile .name{
+.groupSection.compact .tile .name{
   white-space: normal !important;
-
-  /* Force clamp mechanics (something is overriding display) */
   display: -webkit-box !important;
   -webkit-box-orient: vertical !important;
-  line-clamp: 2;
   -webkit-line-clamp: 2 !important;
 
   overflow: hidden !important;
 
-  /* Prevent descenders from getting clipped on line 2 */
-  line-height: 1.25 !important;
-  padding-bottom: 2px !important;
-  box-sizing: content-box !important;
+  /* Typography refinement */
+  font-weight: 500 !important;   /* lighter than default */
+  font-size: 11px !important;    /* slightly smaller */
+  line-height: 1.28 !important;   /* tighter but clean */
+
+  padding: 0 0 2px 0 !important;
+  margin: 0 !important;
 }
 
 .sizeControl {
@@ -2523,6 +2543,57 @@ html[data-theme="windows"] .folderModal button{
   background: rgba(255, 80, 80, 0.15);
   color: rgba(255, 80, 80, 0.9);
   letter-spacing: 0.5px;
+}
+
+/* =========================================================
+   FINAL OVERRIDE: Compact tiles must not be forced square
+   (allows 2-line names in the smallest compact size)
+   ========================================================= */
+.groupSection.compact .groupGrid .tile{
+  height: auto !important;
+  min-height: var(--tileEffective) !important;
+  aspect-ratio: auto !important;
+}
+
+.groupSection.compact .groupGrid .tile .thumb{
+  min-height: 34px !important;
+  max-height: 34px !important;
+  background-size: 30px 30px !important;
+  border-radius: 10px;
+}
+
+/* Compact: ensure the label can take space (prevents forced tiny height) */
+.groupSection.compact .groupGrid .tile .name{
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  /* also prevent any transform/scale tricks from collapsing layout */
+  transform: none !important;
+}
+
+/* FINAL WINNER: in compact grouped view, tiles must not have fixed height */
+html[data-layout-mode="sections"] .groupSection.compact .groupGrid .tile{
+  height: auto !important;
+  min-height: var(--tileEffective) !important;
+  aspect-ratio: auto !important;
+}
+
+/* Compact grouped view: allow tiles to be taller than the grid cell */
+.groupSection.compact .groupGrid{
+  grid-auto-rows: auto !important;
+  align-items: start;
+}
+
+.groupSection.compact .groupGrid .tile{
+  height: auto !important;
+  aspect-ratio: auto !important;
+
+  /* allow just enough growth for 2 lines, but no more */
+  min-height: var(--tileEffective) !important;
+  max-height: calc(var(--tileEffective) + 18px) !important;
+
+  overflow: hidden;
 }
 
 /* END */
