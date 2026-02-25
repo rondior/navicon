@@ -55,10 +55,6 @@
   --shadow-sm: 0 10px 24px rgba(0,0,0,.30);
 }
 
-:root{
-  ...
-}
-
 /* Google Style (DEFAULT) */
 html[data-theme="google"]{
   /* Clean Google-ish neutral */
@@ -77,11 +73,6 @@ html[data-theme="google"]{
 
   --shadow-1: 0 10px 30px rgba(17,24,39,.10);
   --shadow-2: 0 16px 44px rgba(17,24,39,.14);
-}
-
-/* Apple Glass */
-html[data-theme="apple"]{
-  ...
 }
 
 /* Apple Glass */
@@ -208,6 +199,43 @@ color: var(--text);
   -webkit-backdrop-filter: blur(calc(var(--blur) * 0.45));
 
   box-shadow: var(--shadow-sm);
+}
+
+/* =========================
+   TOAST (first-run + feedback)
+========================= */
+.toast{
+  position: fixed;
+  left: 50%;
+  top: 92px;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 2147483647;
+
+  max-width: min(680px, calc(100vw - 28px));
+  padding: 12px 14px;
+
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--stroke) 80%, transparent);
+  background: color-mix(in oklab, var(--panel) 92%, rgba(0,0,0,.08));
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: .1px;
+  line-height: 1.25;
+
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(calc(var(--blur) * 0.65));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.65));
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease-ui), transform 180ms var(--ease-ui);
+}
+
+.toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .brand{font-weight:700; letter-spacing:.2px}
@@ -1286,8 +1314,8 @@ dialog.dialog{
   --nameSize: clamp(10px, calc(var(--tile) * 0.11), 18px);
 
 /* smaller minimums so 64px tiles still have label room */
-  --padSize: clamp(6px,  calc(var(--tile) * 0.07), 16px);
-  --gapSize: clamp(4px,  calc(var(--tile) * 0.04), 12px);
+  --padSize: clamp(5px,  calc(var(--tile) * 0.065), 16px);
+  --gapSize: clamp(3px,  calc(var(--tile) * 0.035), 12px);
 
   --kebabSize: clamp(16px, calc(var(--tile) * 0.20), 34px);
   --kebabFont: clamp(10px, calc(var(--tile) * 0.12), 16px);
