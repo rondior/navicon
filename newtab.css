@@ -417,8 +417,6 @@ main{padding:18px}
   overflow: hidden;
 }
 
-.tile .name{font-weight:650}
-
 /* URL: hidden by default; reveal on hover as a bottom popup */
 .tile .url{
   display: none !important;
@@ -498,11 +496,7 @@ main{padding:18px}
   --t: var(--tile);
 }
 
-/* Text scales with tile size (stays readable small, not huge large) */
-.tile .name{
-  font-size: clamp(11px, calc(var(--t) * 0.085), 16px);
-  line-height: 1.15;
-}
+/* NOTE: label sizing is controlled by the authoritative TILE CONTENT SCALE block below */
 
 /* Compact group mode (when tiles get small) */
 .groupSection.compact .tile{
@@ -1366,18 +1360,28 @@ dialog.dialog{
 /* Scale the label text */
 .tile .name{
   font-size: var(--nameSize) !important;
-  line-height: 1.15 !important;
-  font-weight: 650 !important;
+  line-height: 1.22 !important;   /* more breathing room = no 2nd-line chop */
+  font-weight: 500 !important;    /* lighter = fits better in small tiles */
+  letter-spacing: .1px !important;
 }
 
-/* Keep 2-line clamp readable at small sizes */
+/* Keep 2-line clamp readable at small sizes (no 2nd-line shaving) */
 .groupSection.compact .tile .name,
 .grid:not(.grouped) .tile .name{
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
+  white-space: normal !important;
+
+  /* Force clamp mechanics (something is overriding display) */
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
   line-clamp: 2;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
+  -webkit-line-clamp: 2 !important;
+
+  overflow: hidden !important;
+
+  /* Prevent descenders from getting clipped on line 2 */
+  line-height: 1.25 !important;
+  padding-bottom: 2px !important;
+  box-sizing: content-box !important;
 }
 
 .sizeControl {
