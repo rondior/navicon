@@ -55,6 +55,35 @@
   --shadow-sm: 0 10px 24px rgba(0,0,0,.30);
 }
 
+:root{
+  ...
+}
+
+/* Google Style (DEFAULT) */
+html[data-theme="google"]{
+  /* Clean Google-ish neutral */
+  --bg1:#f6f7fb;
+  --bg2:#eef1f7;
+
+  --panel: rgba(255,255,255,.78);
+  --stroke: rgba(17,24,39,.12);
+
+  --text:#111827;
+  --muted:#6b7280;
+
+  /* Google blue + subtle secondary */
+  --accent:#1a73e8;
+  --accent2:#34a853;
+
+  --shadow-1: 0 10px 30px rgba(17,24,39,.10);
+  --shadow-2: 0 16px 44px rgba(17,24,39,.14);
+}
+
+/* Apple Glass */
+html[data-theme="apple"]{
+  ...
+}
+
 /* Apple Glass */
 html[data-theme="apple"]{
   --bg1:#070a12;
@@ -557,6 +586,20 @@ main{padding:18px}
 
 .themeOption input{
   accent-color: var(--accent);
+}
+
+/* Center the theme label + (default) under it */
+.themeOption span{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  line-height: 1.1;
+}
+
+.themeOption .themeDefault{
+  display:block;
+  margin-top:2px;
 }
 
 .form{padding:18px}
@@ -1251,7 +1294,8 @@ dialog.dialog{
   --kebabInset: clamp(6px, calc(var(--tile) * 0.06), 10px);
 
   /* NEW: icon box + padding (prevents Drive/Sheets “shave” + caps blur at large sizes) */
-  --thumbBox: clamp(26px, calc(var(--tile) * 0.46), 76px);
+  /* slightly smaller minimum so 64px tiles can fit 2-line labels without clipping */
+  --thumbBox: clamp(24px, calc(var(--tile) * 0.46), 76px);
   --thumbPad: clamp(1px, calc(var(--tile) * 0.015), 3px);
 }
 
@@ -1354,6 +1398,60 @@ dialog.dialog > form.form {
   border-radius: 18px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+/* =========================
+   MODAL CONTRAST FIX (Settings / Pro)
+   Prevent theme/tile vars from washing out dialog text
+========================= */
+#settingsDialog,
+#proDialog{
+  color: #111;
+}
+
+#settingsDialog .settingsTitle,
+#proDialog .settingsTitle{
+  color: #111;
+}
+
+#settingsDialog label,
+#settingsDialog .row,
+#settingsDialog .muted,
+#settingsDialog input,
+#settingsDialog select,
+#settingsDialog button,
+#proDialog label,
+#proDialog .row,
+#proDialog .muted,
+#proDialog input,
+#proDialog select,
+#proDialog button{
+  color: #111;
+}
+
+/* =========================
+   GOOGLE THEME — Dialog Contrast Fix
+========================= */
+html[data-theme="google"] dialog.dialog > form.form,
+:root[data-theme="google"] dialog.dialog > form.form {
+  background: rgba(255,255,255,.96) !important;
+  color: #111827 !important;
+}
+
+html[data-theme="google"] dialog.dialog > form.form * ,
+:root[data-theme="google"] dialog.dialog > form.form * {
+  color: #111827 !important;
+}
+
+/* Visible input borders in light themes (Google / Windows / Warm) */
+html[data-theme="google"] dialog.dialog > form.form input,
+html[data-theme="google"] dialog.dialog > form.form select,
+html[data-theme="windows"] dialog.dialog > form.form input,
+html[data-theme="windows"] dialog.dialog > form.form select,
+html[data-theme="warm"] dialog.dialog > form.form input,
+html[data-theme="warm"] dialog.dialog > form.form select{
+  border: 1px solid rgba(17,24,39,.22) !important;
+  background: rgba(255,255,255,.92) !important;
 }
 
 /* Apple Glass override: force readable text/controls inside dialogs */
@@ -2115,6 +2213,33 @@ dialog.dialog .tileMenuBtn{
 html[data-theme="warm"],
 html[data-theme="windows"]{
   color: var(--text);
+}
+
+/* =========================
+   GOOGLE THEME — Topbar (Header) Styling
+========================= */
+html[data-theme="google"] .topbar{
+  background: rgba(255,255,255,.78);
+  border-color: rgba(17,24,39,.10);
+  box-shadow: 0 10px 28px rgba(17,24,39,.10);
+  color: var(--text);
+}
+
+html[data-theme="google"] .topbar .btn,
+html[data-theme="google"] .topbar .segBtn{
+  background: rgba(255,255,255,.70);
+  border-color: rgba(17,24,39,.12);
+  color: var(--text);
+}
+
+html[data-theme="google"] .topbar .segBtn[aria-checked="true"]{
+  background: rgba(26,115,232,.14);
+  border-color: rgba(26,115,232,.35);
+}
+
+html[data-theme="google"] .topbar .kbdHint,
+html[data-theme="google"] .topbar .brandTagline{
+  color: var(--muted);
 }
 
 /* Topbar / brand */
