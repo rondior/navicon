@@ -1368,21 +1368,17 @@ dialog.dialog{
   letter-spacing: .1px !important;
 }
 
-/* Keep 2-line clamp readable at small sizes (no 2nd-line shaving) */
+/* Compact labels: 2-line cap without WebKit clamp (lint-clean) */
 .groupSection.compact .tile .name{
-  /* Clamp (Chromium/Safari) */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-
-  overflow: hidden;
   white-space: normal;
+  overflow: hidden;
 
-  /* Typography refinement */
-  font-weight: 500 !important;   /* lighter than default */
-  font-size: 11px !important;    /* slightly smaller */
-  line-height: 1.28 !important;  /* tighter but clean */
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  line-height: 1.28 !important;
 
+  /* 2 lines max: 1.28em * 2 */
+  max-height: calc(1.28em * 2);
   padding: 0 0 2px 0 !important;
   margin: 0 !important;
 }
@@ -2184,34 +2180,9 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
   border-radius: 999px;
 }
 
-#grid.folders .folderTile{
-  width: var(--tileFolder, 140px) !important;
-  height: var(--tileFolder, 140px) !important;
-}
-
 /* =========================
    Premium polish (Folders)
 ========================= */
-
-/* smoother motion + subtle depth */
-#grid.folders .folderTile{
-  transition:
-    transform var(--dur-ui) var(--ease-ui),
-    box-shadow var(--dur-ui) var(--ease-ui),
-    background var(--dur-ui) var(--ease-ui);
-  will-change: transform;
-}
-
-/* Folders: premium full-tile lift (restrained, no scaling) */
-#grid.folders .folderTile{
-  border: 1px solid rgba(255,255,255,0.08);
-  transition:
-    transform var(--dur-ui) var(--ease-ui),
-    box-shadow var(--dur-ui) var(--ease-ui),
-    background var(--dur-ui) var(--ease-ui),
-    border-color var(--dur-ui) var(--ease-ui);
-  will-change: transform;
-}
 
 #grid.folders .folderTile:hover{
   transform: translateY(-2px);
@@ -2247,10 +2218,7 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
     box-shadow var(--dur-ui) var(--ease-ui),
     background var(--dur-ui) var(--ease-ui),
     border-color var(--dur-ui) var(--ease-ui);
-}
 
-/* Folders: base card surface (was lost during cleanup) */
-#grid.folders .folderTile{
   border-radius: var(--r-xl);
   background: color-mix(in oklab, var(--panel) 45%, transparent);
   border: 1px solid color-mix(in oklab, var(--stroke) 55%, transparent);
