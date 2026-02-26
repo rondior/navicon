@@ -1370,17 +1370,18 @@ dialog.dialog{
 
 /* Keep 2-line clamp readable at small sizes (no 2nd-line shaving) */
 .groupSection.compact .tile .name{
-  white-space: normal !important;
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
+  /* Clamp (Chromium/Safari) */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 
-  overflow: hidden !important;
+  overflow: hidden;
+  white-space: normal;
 
   /* Typography refinement */
   font-weight: 500 !important;   /* lighter than default */
   font-size: 11px !important;    /* slightly smaller */
-  line-height: 1.28 !important;   /* tighter but clean */
+  line-height: 1.28 !important;  /* tighter but clean */
 
   padding: 0 0 2px 0 !important;
   margin: 0 !important;
@@ -2001,6 +2002,24 @@ dialog.dialog .tileMenuBtn{
   display:block;
 }
 
+/* Google theme + Folders mode: match Sections contrast */
+html[data-theme="google"] #grid.folders .folderTile{
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+/* Google theme + Folders mode: folder title text must be dark */
+html[data-theme="google"] #grid.folders .folderTile .folderName,
+html[data-theme="google"] #grid.folders .folderTile .name{
+  color: #111 !important;
+}
+
+/* Google theme + Folders mode: folder title must be dark */
+html[data-theme="google"] #grid.folders .folderTile .folderTitle{
+  color: #111 !important;
+}
+
 /* =========================
    Folder Modal
 ========================= */
@@ -2414,6 +2433,69 @@ html[data-theme="windows"] .folderModal button{
   font-size: 14px;
   line-height: 1;
   opacity: 0.9;
+}
+
+/* =========================================================
+   Warm Theme — Folders should match Sections cards exactly
+   ========================================================= */
+
+html[data-theme="warm"] #grid.folders .folderTile{
+  background: oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
+  border: 1px solid rgba(255, 140, 100, 0.35);
+  box-shadow: rgba(0, 0, 0, 0.14) 0px 6px 18px 0px;
+}
+
+html[data-theme="warm"] #grid.folders .folderTile .folderTitle{
+  color: rgb(42, 27, 20) !important;
+}
+
+/* =========================================================
+   Windows Theme — Folders should match Sections cards exactly
+   ========================================================= */
+
+html[data-theme="windows"] #grid.folders .folderTile{
+  background: oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
+  border: 1px solid rgb(199, 209, 223);
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px;
+}
+
+html[data-theme="windows"] #grid.folders .folderTile .folderTitle{
+  color: rgb(17, 24, 39) !important;
+}
+
+/* =========================================================
+   Apple Glass Theme — Folders match Sections surface exactly
+   ========================================================= */
+
+html[data-theme="apple"] #grid.folders .folderTile{
+  background: oklab(0.999994 0.0000455678 0.0000200868 / 0.111843);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 22px 0px;
+  backdrop-filter: blur(calc(var(--blur) * 0.6));
+  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.6));
+}
+
+html[data-theme="apple"] #grid.folders .folderTile .folderTitle{
+  color: rgba(255,255,255,0.92) !important;
+}
+
+/* =========================================================
+   Apple Glass Theme — lighten folder preview interior (FORCE)
+   ========================================================= */
+
+html[data-theme="apple"] #grid.folders .folderPreview{
+  background: rgba(255,255,255,0.16) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14) !important;
+}
+
+html[data-theme="apple"] #grid.folders .folderPreviewItem{
+  background: rgba(255,255,255,0.20) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16) !important;
+}
+
+html[data-theme="apple"] #grid.folders .folderPreviewItem.isEmpty{
+  background: rgba(255,255,255,0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10) !important;
 }
 
 /* END */
