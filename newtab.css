@@ -505,26 +505,6 @@ main{padding:18px}
   --t: var(--tile);
 }
 
-/* NOTE: label sizing is controlled by the authoritative TILE CONTENT SCALE block below */
-
-/* Compact group mode: keep width fixed, allow height to grow for 2-line labels */
-.groupSection.compact .tile{
-  gap: 6px;
-
-  /* Keep the compact width, but don’t force a perfect square */
-  width: var(--tileEffective);
-  height: auto !important;
-  min-height: var(--tileEffective);
-  aspect-ratio: auto !important;
-
-  padding-top: 8px !important;
-  padding-bottom: 10px !important;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 /* Compact: ultra-minimal menu button */
 .groupSection.compact .tileMenuBtn{
   width: 16px;
@@ -1338,7 +1318,7 @@ dialog.dialog{
 
   /* NEW: icon box + padding (prevents Drive/Sheets “shave” + caps blur at large sizes) */
   /* slightly smaller minimum so 64px tiles can fit 2-line labels without clipping */
-  --thumbBox: clamp(24px, calc(var(--tile) * 0.46), 76px);
+  --thumbBox: clamp(22px, calc(var(--tile) * 0.40), 72px);
   --thumbPad: clamp(1px, calc(var(--tile) * 0.015), 3px);
 }
 
@@ -1354,27 +1334,29 @@ dialog.dialog{
   gap: var(--gapSize) !important;
 }
 
-/* Scale the icon “thumb” */
+/* Scale the icon “thumb” — premium sizing + crisp control */
 .tile .thumb{
   /* Always render icons safely */
   background-repeat: no-repeat !important;
   background-position: center !important;
 
-  /* Cap the box so icons never blow up and blur at large tile sizes */
+  /* Stable geometry driven by tile size */
   width: var(--thumbBox) !important;
   height: var(--thumbBox) !important;
   flex: 0 0 auto !important;
 
-  /* Tiny breathing room prevents Drive/Sheets shaving */
-  padding: var(--thumbPad) !important;
+  /* Subtle inner padding keeps favicons from feeling cramped */
+  padding: clamp(4px, calc(var(--tile) * 0.06), 8px) !important;
   background-origin: content-box !important;
   background-clip: content-box !important;
 
-  /* Keep aspect ratio and never crop */
-  background-size: contain !important;
+  /* Control icon dominance across sizes */
+  background-size: clamp(26px, calc(var(--tile) * 0.34), 44px) !important;
 
-  /* Keep the thumb shape consistent */
-  border-radius: clamp(10px, calc(var(--tile) * 0.08), 14px) !important;
+  /* Premium corner scaling */
+  border-radius: clamp(10px, calc(var(--tile) * 0.10), 16px) !important;
+
+  /* Never allow collapse */
   min-height: 0 !important;
 }
 
@@ -2432,168 +2414,6 @@ html[data-theme="windows"] .folderModal button{
   font-size: 14px;
   line-height: 1;
   opacity: 0.9;
-}
-
-/* =========================
-   FOLDERS — FINAL OVERRIDE (authoritative)
-   Fixes title clipping + preview icon scaling
-========================= */
-
-/* Folder tile: always square, always driven by --tileFolder (never --tile) */
-#grid.folders .folderTile{
-  width: var(--tileFolder, 120px) !important;
-  height: var(--tileFolder, 120px) !important;
-
-  display: flex;
-  flex-direction: column;
-
-  /* Use consistent internal spacing that scales */
-  padding: clamp(10px, calc(var(--tileFolder) * 0.07), 14px);
-  gap: clamp(8px, calc(var(--tileFolder) * 0.05), 12px);
-
-  overflow: hidden;
-}
-
-/* Title lane: guaranteed space, never overlaps preview */
-#grid.folders .folderHead{
-  flex: 0 0 auto;
-  margin: 0;
-  padding: 0;
-  align-items: flex-start;
-}
-
-#grid.folders .folderTitle{
-  color: var(--text);
-  font-weight: 800;
-
-  /* Scale safely */
-  font-size: clamp(12px, calc(var(--tileFolder) * 0.09), 14px);
-  line-height: 1.15;
-
-  /* Clamp to 2 lines but prevent clipping */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-
-  /* reserve space for badge */
-  padding-right: 34px;
-}
-
-/* Count badge: keep it crisp and readable */
-#grid.folders .folderCount,
-#grid.folders .folderCountBadge{
-  color: var(--text);
-  background: color-mix(in oklab, var(--panel) 55%, transparent);
-  border: 1px solid color-mix(in oklab, var(--stroke) 70%, transparent);
-}
-
-/* Preview area: takes remaining space naturally (no calc() magic numbers) */
-#grid.folders .folderPreview{
-  flex: 1 1 auto;
-  min-height: 0;
-
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: 1fr;
-  gap: clamp(6px, calc(var(--tileFolder) * 0.045), 10px);
-
-  padding: clamp(10px, calc(var(--tileFolder) * 0.07), 14px);
-  border-radius: var(--r-lg);
-
-  background: color-mix(in oklab, var(--panel) 35%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--stroke) 55%, transparent);
-}
-
-/* Preview icon boxes: stable geometry */
-#grid.folders .folderPreviewItem{
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: color-mix(in oklab, var(--panel) 25%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--stroke) 45%, transparent);
-}
-
-/* Icons: scale smoothly and consistently */
-#grid.folders .folderPreviewImg{
-  width: clamp(18px, calc(var(--tileFolder) * 0.16), 30px);
-  height: clamp(18px, calc(var(--tileFolder) * 0.16), 30px);
-  object-fit: contain;
-  display: block;
-}
-
-/* Multi-line clamp utility */
-.clamp-2{
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
-
-/* PRO badge (hidden by default) */
-.proBadge {
-  display: none;
-  margin-left: 6px;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 10px;
-  background: rgba(255, 80, 80, 0.15);
-  color: rgba(255, 80, 80, 0.9);
-  letter-spacing: 0.5px;
-}
-
-/* =========================================================
-   FINAL OVERRIDE: Compact tiles must not be forced square
-   (allows 2-line names in the smallest compact size)
-   ========================================================= */
-.groupSection.compact .groupGrid .tile{
-  height: auto !important;
-  min-height: var(--tileEffective) !important;
-  aspect-ratio: auto !important;
-}
-
-.groupSection.compact .groupGrid .tile .thumb{
-  min-height: 34px !important;
-  max-height: 34px !important;
-  background-size: 30px 30px !important;
-  border-radius: 10px;
-}
-
-/* Compact: ensure the label can take space (prevents forced tiny height) */
-.groupSection.compact .groupGrid .tile .name{
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
-
-  /* also prevent any transform/scale tricks from collapsing layout */
-  transform: none !important;
-}
-
-/* FINAL WINNER: in compact grouped view, tiles must not have fixed height */
-html[data-layout-mode="sections"] .groupSection.compact .groupGrid .tile{
-  height: auto !important;
-  min-height: var(--tileEffective) !important;
-  aspect-ratio: auto !important;
-}
-
-/* Compact grouped view: allow tiles to be taller than the grid cell */
-.groupSection.compact .groupGrid{
-  grid-auto-rows: auto !important;
-  align-items: start;
-}
-
-.groupSection.compact .groupGrid .tile{
-  height: auto !important;
-  aspect-ratio: auto !important;
-
-  /* allow just enough growth for 2 lines, but no more */
-  min-height: var(--tileEffective) !important;
-  max-height: calc(var(--tileEffective) + 18px) !important;
-
-  overflow: hidden;
 }
 
 /* END */

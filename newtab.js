@@ -343,7 +343,7 @@ function applyTileSize(px) {
   const mode = root.dataset.layoutMode || "flat";
 
   // Flat + Sections: allow the new smaller min
-  const min = 64;
+  const min = 72;
   const max = 160;
 
   // Raw slider value (what the user is trying to set)
@@ -1175,7 +1175,7 @@ if (Array.isArray(links) && links.length === 0) {
   theme: "google",
   layoutMode: "sections",
   groupMode: true,
-  tileSize: 64,
+  tileSize:72,
   tileSizeUserSet: true,
   expandedGroups: {
     ...(existing.expandedGroups || {}),
@@ -1200,8 +1200,11 @@ if (Array.isArray(links) && links.length === 0) {
   const s = await loadSettings();
 
   // Ensure tile size CSS var is applied before any layout is rendered
+// Enforce premium minimum (72) so legacy saved values like 64 can't persist
 if (typeof s.tileSize === "number" && s.tileSize > 0) {
-  document.documentElement.style.setProperty("--tile", `${s.tileSize}px`);
+  const clamped = Math.min(160, Math.max(72, s.tileSize));
+  s.tileSize = clamped; // normalize in-memory for downstream slider/UI
+  document.documentElement.style.setProperty("--tile", `${clamped}px`);
 }
 
   const layoutMode = s.layoutMode || (s.groupMode ? "sections" : "flat");
@@ -1366,12 +1369,12 @@ sizeRange.addEventListener("input", (e) => {
 if (sizeResetBtn) {
   sizeResetBtn.addEventListener("click", async () => {
     const cur = await loadSettings();
-    cur.tileSize = 64;
+    cur.tileSize = 72;
     cur.tileSizeUserSet = true;
     await saveSettings(cur);
 
-    if (sizeRange) sizeRange.value = "64";
-    applyTileSize(64);
+    if (sizeRange) sizeRange.value = "72";
+    applyTileSize(72);
   });
 }
 
