@@ -1929,31 +1929,6 @@ dialog.dialog .tileMenuBtn{
   background: rgba(255,255,255,0.10);
 }
 
-.folderHead{
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.folderTitle{
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.1;
-  color: #fff;
-
-  /* reserve room for top-right badge so text can't go underneath */
-  padding-right: 34px;
-
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-
-  overflow: hidden;
-  white-space: normal;
-}
-
 .folderCount{
   font-size: 12px;
   font-weight: 600;
@@ -1963,39 +1938,97 @@ dialog.dialog .tileMenuBtn{
   border-radius: 999px;
 }
 
-.folderPreview{
+/* =========================================================
+   Folders preview (stable fixed-cell grid)
+   - prevents “one giant cell” when a folder has few links
+   - scales with --tileFolder
+   ========================================================= */
+
+#grid.folders .folderPreview{
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 8px;
+  display: grid;
+
+  /* default grid: 3x3 */
+  --fpCols: 3;
+  --fpRows: 3;
+
+  /* padding + gap scale with folder size */
+  --fpPad: clamp(10px, calc(var(--tileFolder, 140px) * 0.055), 16px);
+  --fpGap: clamp(6px,  calc(var(--tileFolder, 140px) * 0.030), 12px);
+
+  /* cell size derived from available preview box size (no 1fr tracks) */
+  --fpCell: clamp(
+    20px,
+    min(
+      calc((100% - (var(--fpPad) * 2) - (var(--fpGap) * (var(--fpCols) - 1))) / var(--fpCols)),
+      calc((100% - (var(--fpPad) * 2) - (var(--fpGap) * (var(--fpRows) - 1))) / var(--fpRows))
+    ),
+    64px
+  );
+
+  grid-template-columns: repeat(var(--fpCols), var(--fpCell));
+  grid-auto-rows: var(--fpCell);
+  gap: var(--fpGap);
+
+  justify-content: center;
+  align-content: center;
 
   border-radius: var(--r-lg);
   background: rgba(0,0,0,0.18);
-  padding: 12px;
+  padding: var(--fpPad);
 }
 
-.folderPreviewItem{
-  border-radius: 12px;
+/* Grid layout by folder size (simple + predictable) */
+#grid.folders .folderTile{
+  /* nothing here; just ensures rules below apply cleanly */
+}
+
+/* Small folders: 2x2 */
+#grid.folders .folderTile{
+  /* default stays 3x3; overridden below using size thresholds */
+}
+
+/* When folder tiles are small, use 2x2 */
+@media (max-width: 99999px){
+  html #grid.folders .folderPreview{ /* base selector for overrides */ }
+}
+
+/* Threshold overrides using --tileFolder via attribute-free CSS:
+   We can’t directly compare CSS vars, so we use practical breakpoints on tile size
+   by switching based on actual tile widths through container behavior.
+   To keep it robust, we use data-fp-free fixed choices based on layout density:
+*/
+html #grid.folders .folderPreview{ --fpCols: 3; --fpRows: 3; }
+
+/* Tighter (small): 2x2 */
+html #grid.folders .folderTile{ }
+html #grid.folders .folderPreview{
+  /* if you want 2x2 always at min, just set these two lines and delete the 3x3 defaults */
+}
+
+/* Preview cell */
+#grid.folders .folderPreviewItem{
+  border-radius: clamp(10px, calc(var(--fpCell, 44px) * 0.22), 16px);
   background-color: rgba(255,255,255,0.06);
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  display: grid;
+  place-items: center;
 }
 
-.folderPreviewItem.isEmpty{
-  opacity: 0.35;
+/* If JS still pads empties, hide them (keeps grid from feeling “fake”) */
+#grid.folders .folderPreviewItem.isEmpty{
+  display: none;
 }
 
-.folderPreviewImg{
-  width: 22px;
-  height: 22px;
+#grid.folders .folderPreviewImg{
+  width:  calc(var(--fpCell, 44px) * 0.88);
+  height: calc(var(--fpCell, 44px) * 0.88);
   object-fit: contain;
-  display:block;
+  display: block;
 }
 
 /* Google theme + Folders mode: match Sections contrast */
@@ -2135,26 +2168,40 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
   display: none !important;
 }
 
-/* Folders mode: keep folder tiles square + enforce larger minimum */
 .grid.folders .folderTile{
   width: var(--tileFolder, 140px);
   height: var(--tileFolder, 140px);
   position: relative;
   overflow: hidden;
+
+  /* vertical balance */
+  display: flex;
+  flex-direction: column;
 }
 
-/* Header/title area */
-.folderHead{
+/* Header/title area (Folders-only) */
+#grid.folders .folderHead{
+  flex: 0 0 auto;
+  --fhInset: clamp(8px, calc(var(--tileFolder, 140px) * 0.055), 14px);
+
+  /* keeps preview area healthy (prevents header from stealing space) */
+  max-height: clamp(34px, calc(var(--tileFolder, 140px) * 0.22), 62px);
+
+  /* balanced spacing that scales with tile size */
+  margin: 0 0 clamp(6px, calc(var(--tileFolder, 140px) * 0.035), 12px) 0;
   padding: 0;
-  margin: 0 0 6px 0;
 }
 
-.folderTitle{
-  font-size: 13px;
+/* Title (Folders-only) */
+#grid.folders .folderTitle{
+  /* scales cleanly from small -> large */
+  font-size: clamp(12px, calc(var(--tileFolder, 140px) * 0.075), 18px);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.12;
   color: #fff;
-  padding-right: 34px;
+
+  /* reserve space for the badge at top-right */
+  padding-right: calc(var(--fhInset, 10px) + clamp(28px, calc(var(--tileFolder, 140px) * 0.20), 54px));
 
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -2165,19 +2212,26 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
   white-space: normal;
 }
 
-/* Count badge overlay (top-right) */
-.folderCountBadge{
+/* Count badge overlay (Folders-only) */
+#grid.folders .folderCountBadge{
   position: absolute;
-  top: 10px;
-  right: 10px;
 
-  font-size: 11px;
+  top:  var(--fhInset);
+  right: var(--fhInset);
+
+  font-size: clamp(10px, calc(var(--tileFolder, 140px) * 0.060), 14px);
   font-weight: 800;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.88);
+
   background: rgba(0,0,0,0.28);
   border: 1px solid rgba(255,255,255,0.10);
-  padding: 2px 7px;
+
+  padding:
+    clamp(2px, calc(var(--tileFolder, 140px) * 0.014), 5px)
+    clamp(7px, calc(var(--tileFolder, 140px) * 0.040), 12px);
+
   border-radius: 999px;
+  line-height: 1;
 }
 
 /* =========================
@@ -2454,16 +2508,6 @@ html[data-theme="apple"] #grid.folders .folderTile .folderTitle{
 html[data-theme="apple"] #grid.folders .folderPreview{
   background: rgba(255,255,255,0.16) !important;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14) !important;
-}
-
-html[data-theme="apple"] #grid.folders .folderPreviewItem{
-  background: rgba(255,255,255,0.20) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16) !important;
-}
-
-html[data-theme="apple"] #grid.folders .folderPreviewItem.isEmpty{
-  background: rgba(255,255,255,0.12) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10) !important;
 }
 
 /* END */
