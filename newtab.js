@@ -29,6 +29,8 @@ const DEFAULT_GROUPS = ["Google", "Other"];
 
 let draggedEl = null;
 let renderToken = 0;
+let _isSizeDragging = false;
+let _sizeDragTimer = 0;
 
 /* =========================
    Toast helper
@@ -747,12 +749,31 @@ function renderFolderTile(groupName, items) {
   count.className = "folderCountBadge";
   count.textContent = String(items?.length ?? 0);
 
-  // Preview grid (up to 4)
+    // Preview grid (size-aware cap: 6 -> 12, always 3 columns)
   const preview = document.createElement("div");
   preview.className = "folderPreview";
 
-  const previewItems = (items || []).slice(0, 4);
-      for (const link of previewItems) {
+  // Read current folder tile size from CSS var (folders mode uses --tileFolder)
+  const root = document.documentElement;
+  const tfRaw = getComputedStyle(root).getPropertyValue("--tileFolder").trim();
+  const tileFolderPx = Number.parseFloat(tfRaw) || 140;
+
+  // Map tileFolder range [110..260] -> previewMax [6..12]
+  const minTF = 110, maxTF = 260;
+  const minPrev = 6, maxPrev = 12;
+
+  const t = Math.max(0, Math.min(1, (tileFolderPx - minTF) / (maxTF - minTF)));
+  const previewMax = Math.max(minPrev, Math.min(maxPrev, Math.round(minPrev + t * (maxPrev - minPrev))));
+
+  // Rows: 2..4 (3 columns). This keeps the preview visually stable.
+  const cols = 3;
+  const rows = Math.max(2, Math.min(4, Math.ceil(previewMax / cols)));
+  const targetCells = rows * cols;
+
+  preview.style.setProperty("--fpRows", String(rows));
+
+  const previewItems = (items || []).slice(0, previewMax);
+  for (const link of previewItems) {
     const cell = document.createElement("div");
     cell.className = "folderPreviewItem";
 
@@ -779,8 +800,8 @@ function renderFolderTile(groupName, items) {
     preview.appendChild(cell);
   }
 
-  // If fewer than 4, pad with empties for consistent layout
-  for (let i = previewItems.length; i < 4; i++) {
+  // Pad with empties to keep a consistent 3x(2..4) grid footprint
+  for (let i = previewItems.length; i < targetCells; i++) {
     const empty = document.createElement("div");
     empty.className = "folderPreviewItem isEmpty";
     preview.appendChild(empty);
@@ -796,6 +817,80 @@ function renderFolderTile(groupName, items) {
   });
 
   return btn;
+}
+
+async function refreshFolderPreviews() {
+  const root = document.documentElement;
+
+  // Read current folder tile size from CSS var
+  const tfRaw = getComputedStyle(root).getPropertyValue("--tileFolder").trim();
+  const tileFolderPx = Number.parseFloat(tfRaw) || 140;
+
+  // Map tileFolder range [110..260] -> previewMax [6..12]
+  const minTF = 110, maxTF = 260;
+  const minPrev = 6, maxPrev = 12;
+
+  const t = Math.max(0, Math.min(1, (tileFolderPx - minTF) / (maxTF - minTF)));
+  const previewMax = Math.max(
+    minPrev,
+    Math.min(maxPrev, Math.round(minPrev + t * (maxPrev - minPrev)))
+  );
+
+  const cols = 3;
+  const rows = Math.max(2, Math.min(4, Math.ceil(previewMax / cols)));
+  const targetCells = rows * cols;
+
+  // Load once (prevents jitter / flashing)
+  const links = await loadLinksEnsured();
+  const groups = await buildGroups(links);
+
+  document
+    .querySelectorAll('#grid.folders .folderTile')
+    .forEach((btn) => {
+      const groupName = btn.dataset.group || "";
+      const preview = btn.querySelector(".folderPreview");
+      if (!preview) return;
+
+      // Sync CSS row math
+      preview.style.setProperty("--fpRows", String(rows));
+
+      const items = groups.get(groupName) || [];
+      const previewItems = items.slice(0, previewMax);
+
+      // Only rebuild the preview area (not the whole tile/grid)
+      preview.innerHTML = "";
+
+      for (const link of previewItems) {
+        const cell = document.createElement("div");
+        cell.className = "folderPreviewItem";
+
+        const host = (() => {
+          try { return new URL(link.url).hostname; }
+          catch { return ""; }
+        })();
+
+        const img = document.createElement("img");
+        img.className = "folderPreviewImg";
+        img.alt = "";
+        img.decoding = "async";
+        img.loading = "lazy";
+        img.src = host
+          ? `https://icons.duckduckgo.com/ip3/${host}.ico`
+          : "";
+
+        img.addEventListener("error", () => img.remove());
+
+        cell.appendChild(img);
+        preview.appendChild(cell);
+      }
+
+      // Pad to maintain stable 3 x (2–4) footprint
+      for (let i = previewItems.length; i < targetCells; i++) {
+        const empty = document.createElement("div");
+        empty.className = "folderPreviewItem isEmpty";
+        preview.appendChild(empty);
+      }
+    });
 }
 
 // =========================
@@ -1220,10 +1315,15 @@ try {
     btn.setAttribute("aria-checked", active ? "true" : "false");
   });
 
-  // Tile size slider (id is sizeRange in newtab.html)
+    // Tile size slider (id is sizeRange in newtab.html) — mode-aware
   const sizeRange = document.getElementById("sizeRange");
-  if (sizeRange && typeof s.tileSize === "number") {
-    sizeRange.value = String(s.tileSize);
+  if (sizeRange) {
+    const v = (layoutMode === "folders")
+      ? (typeof s.folderTileSize === "number" ? s.folderTileSize : 140)
+      : (typeof s.tileSize === "number" ? s.tileSize : 160);
+
+        // NOTE: do not set sizeRange.value here.
+    // The slider is owned by init/mode-switch logic + applyTileSize() + the slider handlers.
   }
 } catch {}
 
@@ -1343,39 +1443,45 @@ if (!s.tileSizeUserSet) {
 
 if (sizeRange) {
   // Smooth slider updates (reduces choppy reflow while dragging)
-let _tileRAF = 0;
-let _tileNext = null;
+  let _tileRAF = 0;
+  let _tileNext = null;
 
-sizeRange.addEventListener("input", (e) => {
-  _tileNext = e.target.value;
+  sizeRange.addEventListener("input", (e) => {
+    _tileNext = e.target.value;
 
-  if (_tileRAF) return;
-  _tileRAF = requestAnimationFrame(() => {
-    _tileRAF = 0;
-    if (_tileNext == null) return;
-    applyTileSize(_tileNext);
+    if (_tileRAF) return;
+    _tileRAF = requestAnimationFrame(() => {
+      _tileRAF = 0;
+      if (_tileNext == null) return;
+
+      applyTileSize(_tileNext);
+
+      // Folders mode: refresh previews in-place (no full re-render = no flashing)
+      if ((document.documentElement.dataset.layoutMode || "flat") === "folders") {
+        refreshFolderPreviews();
+      }
+    });
   });
-});
 
   sizeRange.addEventListener("change", async (e) => {
-  const cur = await loadSettings();
+    const cur = await loadSettings();
 
-  const root = document.documentElement;
-  const mode = root.dataset.layoutMode || "flat";
+    const root = document.documentElement;
+    const mode = root.dataset.layoutMode || "flat";
 
-  const raw = Number(e.target.value) || 160;
+    const raw = Number(e.target.value) || 160;
 
-  if (mode === "folders") {
-    cur.folderTileSize = raw;
-  } else {
-    cur.tileSize = raw;
-  }
+    if (mode === "folders") {
+      cur.folderTileSize = raw;
+    } else {
+      cur.tileSize = raw;
+    }
 
-  cur.tileSizeUserSet = true;
-  await saveSettings(cur);
+    cur.tileSizeUserSet = true;
+    await saveSettings(cur);
 
-  if (sizeRange) sizeRange.value = String(raw);
-});
+    if (sizeRange) sizeRange.value = String(raw);
+  });
 }
 
 if (sizeResetBtn) {
