@@ -177,14 +177,13 @@ html[data-theme="windows"]{
 html,body{height:100%}
 body{
   margin:0;
- background:
+  background:
   radial-gradient(1200px 800px at 20% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
   radial-gradient(1000px 700px at 90% 20%, color-mix(in srgb, var(--accent2) 18%, transparent), transparent 55%),
 
   linear-gradient(180deg, var(--bg1), var(--bg2));
 
-color: var(--text);
-
+  color: var(--text);
 }
 
 .topbar{
@@ -192,13 +191,12 @@ color: var(--text);
   display:flex; align-items:center; justify-content:space-between;
   padding:16px 18px;
 
-  background: color-mix(in oklab, var(--panel) 70%, transparent);
-  border-bottom:1px solid var(--stroke);
+  background: var(--topbarBg, color-mix(in oklab, var(--panel) 70%, transparent));
+  border-bottom: 1px solid var(--topbarBorder, var(--stroke));
+  box-shadow: var(--topbarShadow, var(--shadow-sm));
 
   backdrop-filter: blur(calc(var(--blur) * 0.45));
   -webkit-backdrop-filter: blur(calc(var(--blur) * 0.45));
-
-  box-shadow: var(--shadow-sm);
 }
 
 /* =========================
@@ -495,7 +493,7 @@ main{padding:18px}
 
 .tileMenuBtn:hover{
   opacity:1;
-  background: rgba(255,255,255,.12);
+  background: var(--tileMenuBtnHoverBg, rgba(0,0,0,.10));
   transform: scale(1.05);
 }
 
@@ -1508,10 +1506,6 @@ html[data-theme="apple"] dialog.dialog > form.form input,
   background: rgba(255, 255, 255, 0.95);
 }
 
-html[data-theme="apple"] .brand-logo {
-  filter: brightness(0) invert(1);
-}
-
 /* ===== Add Link dialog polish (minimal + clean) ===== */
 #addDialog > form.form h2{
   font-size: 18px;
@@ -1653,12 +1647,6 @@ html[data-theme="apple"] .brand-logo {
   font-weight: 800;
 }
 
-/* Warm + Windows are light backgrounds, use dark dots */
-html[data-theme="warm"] .tileMenuBtn,
-html[data-theme="windows"] .tileMenuBtn{
-  color: rgba(0,0,0,.78) !important;
-}
-
 /* Settings dialog: keep tile menu button interactive (prevents drag reorder glitch) */
 dialog.dialog .tileMenuBtn{
   opacity: 1 !important;
@@ -1699,6 +1687,7 @@ dialog.dialog .tileMenuBtn{
 .brand-logo{
   height: 28px;
   width: auto;
+  filter: var(--brandLogoFilter, none);
 }
 
 .brandText{
@@ -1956,8 +1945,8 @@ dialog.dialog .tileMenuBtn{
   --fpRows: 3;
 
   /* padding + gap scale with folder size */
-  --fpPad: clamp(10px, calc(var(--tileFolder, 140px) * 0.055), 16px);
-  --fpGap: clamp(6px,  calc(var(--tileFolder, 140px) * 0.030), 12px);
+  --fpPad: clamp(8px,  calc(var(--tileFolder, 140px) * 0.045), 14px);
+  --fpGap: clamp(5px,  calc(var(--tileFolder, 140px) * 0.024), 10px);
 
   /* cell size derived from available preview box size (no 1fr tracks) */
   --fpCell: clamp(
@@ -1966,7 +1955,7 @@ dialog.dialog .tileMenuBtn{
       calc((100% - (var(--fpPad) * 2) - (var(--fpGap) * (var(--fpCols) - 1))) / var(--fpCols)),
       calc((100% - (var(--fpPad) * 2) - (var(--fpGap) * (var(--fpRows) - 1))) / var(--fpRows))
     ),
-    64px
+    56px
   );
 
   grid-template-columns: repeat(var(--fpCols), var(--fpCell));
@@ -1981,42 +1970,28 @@ dialog.dialog .tileMenuBtn{
   padding: var(--fpPad);
 }
 
-/* Grid layout by folder size (simple + predictable) */
-#grid.folders .folderTile{
-  /* nothing here; just ensures rules below apply cleanly */
-}
-
-/* Small folders: 2x2 */
-#grid.folders .folderTile{
-  /* default stays 3x3; overridden below using size thresholds */
-}
-
-/* When folder tiles are small, use 2x2 */
-@media (max-width: 99999px){
-  html #grid.folders .folderPreview{ /* base selector for overrides */ }
-}
-
-/* Threshold overrides using --tileFolder via attribute-free CSS:
-   We can’t directly compare CSS vars, so we use practical breakpoints on tile size
-   by switching based on actual tile widths through container behavior.
-   To keep it robust, we use data-fp-free fixed choices based on layout density:
-*/
-html #grid.folders .folderPreview{ --fpCols: 3; --fpRows: 3; }
-
-/* Tighter (small): 2x2 */
-html #grid.folders .folderTile{ }
-html #grid.folders .folderPreview{
-  /* if you want 2x2 always at min, just set these two lines and delete the 3x3 defaults */
-}
-
 /* Preview cell */
 #grid.folders .folderPreviewItem{
   border-radius: clamp(10px, calc(var(--fpCell, 44px) * 0.22), 16px);
-  background-color: rgba(255,255,255,0.06);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+
+  /* Premium “icon tile” feel */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--panel) 55%, transparent),
+      color-mix(in oklab, var(--panel) 35%, transparent)
+    );
+
+  /* crisp edge + subtle depth */
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--stroke) 65%, transparent),
+    0 1px 0 rgba(255,255,255,0.08);
 
   display: grid;
   place-items: center;
+
+  /* keeps icon breathing room consistent */
+  padding: clamp(3px, calc(var(--fpCell, 44px) * 0.06), 7px);
 }
 
 /* If JS still pads empties, hide them (keeps grid from feeling “fake”) */
@@ -2025,28 +2000,22 @@ html #grid.folders .folderPreview{
 }
 
 #grid.folders .folderPreviewImg{
-  width:  calc(var(--fpCell, 44px) * 0.88);
-  height: calc(var(--fpCell, 44px) * 0.88);
+  width:  calc(var(--fpCell, 44px) * 0.84);
+  height: calc(var(--fpCell, 44px) * 0.84);
   object-fit: contain;
   display: block;
 }
 
-/* Google theme + Folders mode: match Sections contrast */
-html[data-theme="google"] #grid.folders .folderTile{
-  background: #ffffff;
-  border: 1px solid rgba(0,0,0,.05);
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
-}
+/* Google theme — Folders colors (variables only) */
+html[data-theme="google"]{
+  --folderTileBg: #ffffff;
+  --folderTileBorder: rgba(0,0,0,.05);
+  --folderTileShadow: 0 1px 3px rgba(0,0,0,.04);
 
-/* Google theme + Folders mode: folder title text must be dark */
-html[data-theme="google"] #grid.folders .folderTile .folderName,
-html[data-theme="google"] #grid.folders .folderTile .name{
-  color: #111 !important;
-}
-
-/* Google theme + Folders mode: folder title must be dark */
-html[data-theme="google"] #grid.folders .folderTile .folderTitle{
-  color: #111 !important;
+  --folderTitleColor: #111;
+  --folderBadgeText: #111;
+  --folderBadgeBg: rgba(0,0,0,0.06);
+  --folderBadgeBorder: rgba(0,0,0,0.10);
 }
 
 /* =========================
@@ -2056,7 +2025,7 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
 .folderOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: var(--overlayBg, rgba(0,0,0,0.35));
   backdrop-filter: blur(6px);
   z-index: 9998;
   opacity: 0;
@@ -2185,7 +2154,7 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
   --fhInset: clamp(8px, calc(var(--tileFolder, 140px) * 0.055), 14px);
 
   /* keeps preview area healthy (prevents header from stealing space) */
-  max-height: clamp(34px, calc(var(--tileFolder, 140px) * 0.22), 62px);
+  max-height: clamp(28px, calc(var(--tileFolder, 140px) * 0.18), 52px);
 
   /* balanced spacing that scales with tile size */
   margin: 0 0 clamp(6px, calc(var(--tileFolder, 140px) * 0.035), 12px) 0;
@@ -2195,10 +2164,10 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
 /* Title (Folders-only) */
 #grid.folders .folderTitle{
   /* scales cleanly from small -> large */
-  font-size: clamp(12px, calc(var(--tileFolder, 140px) * 0.075), 18px);
-  font-weight: 800;
-  line-height: 1.12;
-  color: #fff;
+  font-size: clamp(11px, calc(var(--tileFolder, 140px) * 0.065), 16px);
+  font-weight: 750;
+  line-height: 1.18;
+  color: var(--folderTitleColor, #fff);
 
   /* reserve space for the badge at top-right */
   padding-right: calc(var(--fhInset, 10px) + clamp(28px, calc(var(--tileFolder, 140px) * 0.20), 54px));
@@ -2218,13 +2187,17 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
 
   top:  var(--fhInset);
   right: var(--fhInset);
+  left: auto;
+  z-index: 2;
 
-  font-size: clamp(10px, calc(var(--tileFolder, 140px) * 0.060), 14px);
-  font-weight: 800;
-  color: rgba(255,255,255,0.88);
+  font-size: clamp(10px, calc(var(--tileFolder, 140px) * 0.055), 13px);
+  font-weight: 700;
+  color: var(--folderBadgeText, rgba(255,255,255,0.88));
 
-  background: rgba(0,0,0,0.28);
-  border: 1px solid rgba(255,255,255,0.10);
+  background: var(--folderBadgeBg, color-mix(in oklab, var(--panel) 65%, transparent));
+  border: 1px solid var(--folderBadgeBorder, color-mix(in oklab, var(--stroke) 70%, transparent));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   padding:
     clamp(2px, calc(var(--tileFolder, 140px) * 0.014), 5px)
@@ -2232,6 +2205,8 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
 
   border-radius: 999px;
   line-height: 1;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.14);
 }
 
 /* =========================
@@ -2240,9 +2215,9 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
 
 #grid.folders .folderTile:hover{
   transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.14);
+  box-shadow: var(--folderTileShadow, var(--shadow-1)), var(--shadow-2);
+  background: color-mix(in oklab, var(--folderTileBg, color-mix(in oklab, var(--panel) 45%, transparent)) 88%, white);
+  border-color: color-mix(in oklab, var(--folderTileBorder, color-mix(in oklab, var(--stroke) 55%, transparent)) 75%, white);
 }
 
 /* ensure preview doesn't lift independently */
@@ -2253,7 +2228,7 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
 /* crisp highlight ring on hover/focus (high-end feel) */
 #grid.folders .folderTile:focus-visible{
   outline: 2px solid rgba(255,255,255,0.28);
-  outline-offset: 2px;
+  outline-offset: 4px;
 }
 
 /* Folders mode: smooth slider resizing (Folders only) */
@@ -2274,156 +2249,42 @@ html[data-theme="google"] #grid.folders .folderTile .folderTitle{
     border-color var(--dur-ui) var(--ease-ui);
 
   border-radius: var(--r-xl);
-  background: color-mix(in oklab, var(--panel) 45%, transparent);
-  border: 1px solid color-mix(in oklab, var(--stroke) 55%, transparent);
-  box-shadow: var(--shadow-1);
+  background: var(--folderTileBg, color-mix(in oklab, var(--panel) 45%, transparent));
+  border: 1px solid var(--folderTileBorder, color-mix(in oklab, var(--stroke) 55%, transparent));
+  box-shadow: var(--folderTileShadow, var(--shadow-1));
   color: var(--text);
+  --fhInset: clamp(8px, calc(var(--tileFolder, 140px) * 0.055), 14px);
+  padding: var(--fhInset);
 }
 
 /* =========================
-   LIGHT THEMES TEXT FIX
-   (Warm Studio + Windows Original)
-   Ensures all UI text stays readable on light backgrounds
+   Theme tokens (variables only)
+   Themes MUST NOT style components directly.
 ========================= */
-html[data-theme="warm"],
+
+/* Google */
+html[data-theme="google"]{
+  --topbarBg: rgba(255,255,255,.78);
+  --topbarBorder: rgba(17,24,39,.10);
+  --topbarShadow: 0 10px 28px rgba(17,24,39,.10);
+
+  --topbarBtnBg: rgba(255,255,255,.70);
+  --topbarBtnBorder: rgba(17,24,39,.12);
+
+  --segActiveBg: rgba(26,115,232,.14);
+  --segActiveBorder: rgba(26,115,232,.35);
+}
+
+/* Warm */
+html[data-theme="warm"]{
+  --overlayBg: rgba(0,0,0,0.20);
+  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
+}
+
+/* Windows */
 html[data-theme="windows"]{
-  color: var(--text);
-}
-
-/* =========================
-   GOOGLE THEME — Topbar (Header) Styling
-========================= */
-html[data-theme="google"] .topbar{
-  background: rgba(255,255,255,.78);
-  border-color: rgba(17,24,39,.10);
-  box-shadow: 0 10px 28px rgba(17,24,39,.10);
-  color: var(--text);
-}
-
-html[data-theme="google"] .topbar .btn,
-html[data-theme="google"] .topbar .segBtn{
-  background: rgba(255,255,255,.70);
-  border-color: rgba(17,24,39,.12);
-  color: var(--text);
-}
-
-html[data-theme="google"] .topbar .segBtn[aria-checked="true"]{
-  background: rgba(26,115,232,.14);
-  border-color: rgba(26,115,232,.35);
-}
-
-html[data-theme="google"] .topbar .kbdHint,
-html[data-theme="google"] .topbar .brandTagline{
-  color: var(--muted);
-}
-
-/* Topbar / brand */
-html[data-theme="warm"] .topbar,
-html[data-theme="windows"] .topbar{
-  color: var(--text);
-}
-
-html[data-theme="warm"] .brandTagline,
-html[data-theme="windows"] .brandTagline,
-html[data-theme="warm"] .kbdHint,
-html[data-theme="windows"] .kbdHint{
-  color: var(--muted);
-}
-
-/* Buttons + segmented control labels */
-html[data-theme="warm"] .btn,
-html[data-theme="windows"] .btn,
-html[data-theme="warm"] .segBtn,
-html[data-theme="windows"] .segBtn{
-  color: var(--text);
-}
-
-html[data-theme="warm"] .segBtn[aria-checked="true"],
-html[data-theme="windows"] .segBtn[aria-checked="true"]{
-  color: var(--text);
-}
-
-/* Tiles (Flat + Sections) */
-html[data-theme="warm"] .tile .name,
-html[data-theme="windows"] .tile .name{
-  color: var(--text);
-}
-
-html[data-theme="warm"] .tile .url,
-html[data-theme="windows"] .tile .url{
-  color: var(--muted);
-}
-
-/* Section headers (Sections mode) */
-html[data-theme="warm"] .groupHeader,
-html[data-theme="windows"] .groupHeader{
-  color: var(--text);
-}
-
-/* Folder tiles (Folders mode) */
-html[data-theme="warm"] .folderTitle,
-html[data-theme="windows"] .folderTitle{
-  color: var(--text);
-}
-
-html[data-theme="warm"] .folderCountBadge,
-html[data-theme="windows"] .folderCountBadge{
-  color: var(--text);
-  background: rgba(0,0,0,0.10);
-  border-color: rgba(0,0,0,0.12);
-}
-
-/* Dialog / settings */
-html[data-theme="warm"] dialog,
-html[data-theme="windows"] dialog{
-  color: var(--text);
-}
-
-html[data-theme="warm"] dialog label,
-html[data-theme="windows"] dialog label{
-  color: var(--text);
-}
-
-/* =========================
-   PREMIUM INTERACTION POLISH
-========================= */
-
-/* Unified focus ring (keyboard) */
-:where(button, a, input, [role="radio"]):focus-visible{
-  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  outline-offset: 2px;
-}
-
-/* Softer hover sheen on controls */
-.btn:hover,
-.segBtn:hover{
-  box-shadow: var(--shadow-1);
-}
-
-/* Make segmented selection feel crisper */
-.segmented{
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--stroke) 75%, transparent);
-}
-.segBtn[aria-checked="true"]{
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--stroke) 65%, transparent),
-    var(--shadow-sm);
-}
-
-/* Light themes: softer overlay so it doesn't feel like a dark mode takeover */
-html[data-theme="warm"] .folderOverlay,
-html[data-theme="windows"] .folderOverlay{
-  background: rgba(0,0,0,0.20);
-}
-
-.folderModal .folderModalHeader,
-.folderModal .folderModalTitle{
-  color: var(--text);
-}
-
-html[data-theme="warm"] .folderModal button,
-html[data-theme="windows"] .folderModal button{
-  color: var(--text);
+  --overlayBg: rgba(0,0,0,0.20);
+  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
 }
 
 .groupMoreBtn{
@@ -2458,56 +2319,39 @@ html[data-theme="windows"] .folderModal button{
 }
 
 /* =========================================================
-   Warm Theme — Folders should match Sections cards exactly
+   Theme Folders surfaces — variables only (NO component selectors)
    ========================================================= */
 
-html[data-theme="warm"] #grid.folders .folderTile{
-  background: oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
-  border: 1px solid rgba(255, 140, 100, 0.35);
-  box-shadow: rgba(0, 0, 0, 0.14) 0px 6px 18px 0px;
+html[data-theme="warm"]{
+  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
+  --folderTileBorder: rgba(255, 140, 100, 0.35);
+  --folderTileShadow: rgba(0, 0, 0, 0.14) 0px 6px 18px 0px;
+
+  --folderTitleColor: rgb(42, 27, 20);
+  --folderPreviewBg: rgba(0,0,0,0.10);
+  --folderPreviewStroke: rgba(0,0,0,0.10);
 }
 
-html[data-theme="warm"] #grid.folders .folderTile .folderTitle{
-  color: rgb(42, 27, 20) !important;
+html[data-theme="windows"]{
+  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
+  --folderTileBorder: rgb(199, 209, 223);
+  --folderTileShadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px;
+
+  --folderTitleColor: rgb(17, 24, 39);
+  --folderPreviewBg: rgba(0,0,0,0.08);
+  --folderPreviewStroke: rgba(0,0,0,0.10);
 }
 
-/* =========================================================
-   Windows Theme — Folders should match Sections cards exactly
-   ========================================================= */
+html[data-theme="apple"]{
+  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.111843);
+  --folderTileBorder: rgba(255, 255, 255, 0.12);
+  --folderTileShadow: rgba(0, 0, 0, 0.16) 0px 8px 22px 0px;
+  --brandLogoFilter: brightness(0) invert(1);
 
-html[data-theme="windows"] #grid.folders .folderTile{
-  background: oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
-  border: 1px solid rgb(199, 209, 223);
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px;
-}
+  --folderTitleColor: rgba(255,255,255,0.92);
 
-html[data-theme="windows"] #grid.folders .folderTile .folderTitle{
-  color: rgb(17, 24, 39) !important;
-}
-
-/* =========================================================
-   Apple Glass Theme — Folders match Sections surface exactly
-   ========================================================= */
-
-html[data-theme="apple"] #grid.folders .folderTile{
-  background: oklab(0.999994 0.0000455678 0.0000200868 / 0.111843);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 8px 22px 0px;
-  backdrop-filter: blur(calc(var(--blur) * 0.6));
-  -webkit-backdrop-filter: blur(calc(var(--blur) * 0.6));
-}
-
-html[data-theme="apple"] #grid.folders .folderTile .folderTitle{
-  color: rgba(255,255,255,0.92) !important;
-}
-
-/* =========================================================
-   Apple Glass Theme — lighten folder preview interior (FORCE)
-   ========================================================= */
-
-html[data-theme="apple"] #grid.folders .folderPreview{
-  background: rgba(255,255,255,0.16) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14) !important;
+  --folderPreviewBg: rgba(255,255,255,0.16);
+  --folderPreviewStroke: rgba(255,255,255,0.14);
 }
 
 /* END */

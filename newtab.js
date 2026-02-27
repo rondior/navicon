@@ -342,29 +342,29 @@ function applyTileSize(px) {
   const root = document.documentElement;
   const mode = root.dataset.layoutMode || "flat";
 
-  // Flat + Sections: allow the new smaller min
-  const min = 72;
-  const max = 160;
+  // Always use the actual slider bounds for the active mode (source of truth)
+  const min = Number(sizeRange?.min ?? (mode === "folders" ? 110 : 72));
+  const max = Number(sizeRange?.max ?? (mode === "folders" ? 260 : 160));
 
-  // Raw slider value (what the user is trying to set)
-  const raw = Math.max(min, Math.min(max, Number(px) || 160));
+  const raw = Number(px);
+  const clamped = Math.max(min, Math.min(max, Number.isFinite(raw) ? raw : max));
 
-  // Folders must never go below 82 (both visually + saved state)
-  const effective = (mode === "folders") ? Math.max(raw, 82) : raw;
+  if (mode === "folders") {
+    // Folders mode: slider drives folder tile size directly
+    root.style.setProperty("--tileFolder", clamped + "px");
 
-  // Apply base tile size (used by Flat + Sections, and shared UI sizing)
-  root.style.setProperty("--tile", effective + "px");
+    // Keep --tile stable for topbar/button sizing (do NOT let folders blow up the whole UI)
+    root.style.setProperty("--tile", "160px");
 
-  // Folders: map slider range [82..200] -> [120..200]
-  // (kept as-is, but based on the effective value so it never goes negative)
-  const vMin = 82, vMax = 200;
-  const fMin = 120, fMax = 200;
-  const t = (effective - vMin) / (vMax - vMin);
-  const vf = Math.round(fMin + Math.max(0, Math.min(1, t)) * (fMax - fMin));
-  root.style.setProperty("--tileFolder", vf + "px");
+    // Keep thumb synced (no forced cap)
+    if (sizeRange) sizeRange.value = String(clamped);
+    return;
+  }
 
-  // Keep the slider thumb in sync with what actually applied
-  if (sizeRange) sizeRange.value = String(effective);
+  // Flat + Sections: slider drives --tile directly
+  root.style.setProperty("--tile", clamped + "px");
+
+  if (sizeRange) sizeRange.value = String(clamped);
 }
 
 async function ensureIds(links) {
@@ -1331,7 +1331,15 @@ if (!s.tileSizeUserSet) {
   root.dataset.layoutMode = lm;
 }
 
-applyTileSize(s.tileSize ?? 160);
+{
+  const root = document.documentElement;
+  const mode = root.dataset.layoutMode || "flat";
+  const start = (mode === "folders")
+    ? (s.folderTileSize ?? 140)
+    : (s.tileSize ?? 160);
+  applyTileSize(start);
+  if (sizeRange) sizeRange.value = String(start);
+}
 
 if (sizeRange) {
   // Smooth slider updates (reduces choppy reflow while dragging)
@@ -1348,6 +1356,7 @@ sizeRange.addEventListener("input", (e) => {
     applyTileSize(_tileNext);
   });
 });
+
   sizeRange.addEventListener("change", async (e) => {
   const cur = await loadSettings();
 
@@ -1355,26 +1364,36 @@ sizeRange.addEventListener("input", (e) => {
   const mode = root.dataset.layoutMode || "flat";
 
   const raw = Number(e.target.value) || 160;
-  const effective = (mode === "folders") ? Math.max(raw, 82) : raw;
 
-  cur.tileSize = effective;
+  if (mode === "folders") {
+    cur.folderTileSize = raw;
+  } else {
+    cur.tileSize = raw;
+  }
+
   cur.tileSizeUserSet = true;
   await saveSettings(cur);
 
-  // Ensure the slider thumb reflects what actually got saved (folders can't be < 82)
-  if (sizeRange) sizeRange.value = String(effective);
+  if (sizeRange) sizeRange.value = String(raw);
 });
 }
 
 if (sizeResetBtn) {
   sizeResetBtn.addEventListener("click", async () => {
     const cur = await loadSettings();
-    cur.tileSize = 72;
-    cur.tileSizeUserSet = true;
-    await saveSettings(cur);
+    const root = document.documentElement;
+  const mode = root.dataset.layoutMode || "flat";
 
-    if (sizeRange) sizeRange.value = "72";
-    applyTileSize(72);
+  const resetVal = (mode === "folders") ? 110 : 72;
+
+if (mode === "folders") cur.folderTileSize = resetVal;
+else cur.tileSize = resetVal;
+
+cur.tileSizeUserSet = true;
+await saveSettings(cur);
+
+if (sizeRange) sizeRange.value = String(resetVal);
+applyTileSize(resetVal);
   });
 }
 
@@ -1395,6 +1414,25 @@ if (layoutModeControl) {
     paint(s.layoutMode || (s.groupMode ? "sections" : "flat"));
     // Keep root dataset in sync so applyTileSize() always knows the real mode
     document.documentElement.dataset.layoutMode = (s.layoutMode || (s.groupMode ? "sections" : "flat"));
+        // Init slider bounds/value for the active mode on page load
+    if (sizeRange) {
+      const mode = document.documentElement.dataset.layoutMode || "flat";
+      if (mode === "folders") {
+        sizeRange.min = "110";
+        sizeRange.max = "260";
+        sizeRange.step = "1";
+        const v = Number(s.folderTileSize ?? 140);
+        sizeRange.value = String(v);
+        applyTileSize(v);
+      } else {
+        sizeRange.min = "72";
+        sizeRange.max = "160";
+        sizeRange.step = "1";
+        const v = Number(s.tileSize ?? 160);
+        sizeRange.value = String(v);
+        applyTileSize(v);
+      }
+    }
   })();
 
   // Click handler: set layoutMode, persist, repaint, then render
@@ -1438,6 +1476,28 @@ if (layoutModeControl) {
     await saveSettings(s2);
     paint(nextMode);
     document.documentElement.dataset.layoutMode = nextMode;
+
+        // --- Mode-specific size slider bounds + value (Flat/Sections vs Folders) ---
+    if (sizeRange) {
+      // Bounds by mode
+      if (nextMode === "folders") {
+        sizeRange.min = "110";
+        sizeRange.max = "260";
+        sizeRange.step = "1";
+
+        const v = Number(s2.folderTileSize ?? 140);
+        sizeRange.value = String(v);
+        applyTileSize(v);
+      } else {
+        sizeRange.min = "72";
+        sizeRange.max = "160";
+        sizeRange.step = "1";
+
+        const v = Number(s2.tileSize ?? 160);
+        sizeRange.value = String(v);
+        applyTileSize(v);
+      }
+    }
 
     // Rendering is still stable...
     await render();
