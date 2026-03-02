@@ -989,6 +989,16 @@ main{padding:18px}
   transition: opacity .15s ease, background .15s ease, transform .12s ease;
 }
 
+/* Draw the visible ⋯ via pseudo-element (button text is font-size:0) */
+.tileMenuBtn::before{
+  content: "⋯";
+  color: inherit;
+  font-size: clamp(14px, calc(var(--t) * 0.12), 22px);
+  line-height: 1;
+  font-variant-ligatures: none;
+  pointer-events: none;
+}
+
 .tileMenuBtn:hover{
   opacity: 1;
   transform: scale(1.05);
