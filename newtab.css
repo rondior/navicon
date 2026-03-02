@@ -101,10 +101,10 @@ html[data-theme="google"]{
   --text:#111827;
   --muted:#6b7280;
 
-  /* Optional “header text tokens” used by some light UI pieces */
-  --textPrimary: #202124;
-  --textSecondary: #5f6368;
-  --iconColor: #202124;
+  /* Header / light UI text */
+  --textPrimary:#202124;
+  --textSecondary:#5f6368;
+  --iconColor:#202124;
 
   /* =========================
      Accent
@@ -115,62 +115,87 @@ html[data-theme="google"]{
   /* =========================
      Elevation (Google subtle)
   ========================= */
-  --shadow-1: 0 6px 16px rgba(17,24,39,.08);
-  --shadow-2: 0 10px 24px rgba(17,24,39,.12);
+  --shadow-1:0 6px 16px rgba(17,24,39,.08);
+  --shadow-2:0 10px 24px rgba(17,24,39,.12);
+
+  /* Shadow scale normalization */
+  --shadow-lg:0 10px 24px rgba(17,24,39,.12);
+  --shadow-md:0 6px 16px rgba(17,24,39,.10);
+  --shadow-sm:0 2px 6px rgba(17,24,39,.08);
 
   /* =========================
-     Shadow Scale Overrides
-     (Stops giant dark-theme shadows)
+     Topbar / Controls
   ========================= */
-  --shadow-lg: 0 10px 24px rgba(17,24,39,.12);
-  --shadow-md: 0 6px 16px rgba(17,24,39,.10);
-  --shadow-sm: 0 2px 6px rgba(17,24,39,.08);
+  --topbarBg:rgba(255,255,255,.78);
+  --topbarBorder:rgba(17,24,39,.10);
+  --topbarShadow:0 4px 12px rgba(17,24,39,.08);
 
-  /* Topbar + controls (prevents “giant blob” shadows) */
-  --topbarBg: rgba(255,255,255,.78);
-  --topbarBorder: rgba(17,24,39,.10);
-  --topbarShadow: 0 4px 12px rgba(17,24,39,.08);
+  --topbarBtnBg:rgba(255,255,255,.70);
+  --topbarBtnBorder:rgba(17,24,39,.12);
 
-  --topbarBtnBg: rgba(255,255,255,.70);
-  --topbarBtnBorder: rgba(17,24,39,.12);
-
-  --controlShadow: 0 2px 6px rgba(17,24,39,.10);
-  --controlShadowHover: 0 4px 10px rgba(17,24,39,.12);
+  --controlShadow:0 2px 6px rgba(17,24,39,.10);
+  --controlShadowHover:0 4px 10px rgba(17,24,39,.12);
 
   /* =========================
      Segmented Control
   ========================= */
-  --segText: #5f6368;
-  --segActiveText: #1a73e8;
-  --segActiveBg: rgba(26,115,232,.12);
-  --segActiveBorder: rgba(26,115,232,.35);
-  --segActiveShadow: none;
+  --segLabel:#202124;
+  --segLabelMuted:#5f6368;
+
+  --segText:var(--segLabelMuted);
+  --segHoverText:var(--segLabel);
+  --segActiveText:#1a73e8;
+
+  --segActiveBg:rgba(26,115,232,.12);
+  --segActiveBorder:rgba(26,115,232,.35);
+  --segActiveShadow:none;
 
   /* =========================
      Tile Menu Button (⋯)
   ========================= */
-  --menuBtnBg: rgba(17,24,39,.04);
-  --menuBtnBorder: rgba(17,24,39,.08);
-  --menuBtnFg: rgba(17,24,39,.70);
-  --menuBtnOpacity: .55;
-  --tileMenuBtnHoverBg: rgba(17,24,39,.10);
+  --menuBtnBg:rgba(17,24,39,.04);
+  --menuBtnBorder:rgba(17,24,39,.08);
+  --menuBtnFg:rgba(17,24,39,.70);
+  --menuBtnOpacity:.55;
+  --tileMenuBtnHoverBg:rgba(17,24,39,.10);
 
-    /* Tile menu dropdown surface */
-  --tileMenuBg: rgba(255,255,255,.96);
-  --tileMenuBorder: rgba(17,24,39,.14);
-  --tileMenuShadow: 0 14px 30px rgba(17,24,39,.18);
+  /* =========================
+     Tile Menu Surface
+  ========================= */
+  --tileMenuBg:rgba(255,255,255,.96);
+  --tileMenuBorder:rgba(17,24,39,.14);
+  --tileMenuShadow:0 14px 30px rgba(17,24,39,.18);
+
+  --tileMenuText:#202124;
+  --tileMenuTextMuted:#5f6368;
+
+  --tileMenuItemHoverBg:rgba(17,24,39,.06);
+  --tileMenuDangerText:#d93025;
+  --tileMenuDangerHoverBg:rgba(217,48,37,.12);
 
   /* =========================
      Folder Tiles
   ========================= */
-  --folderTileBg: #ffffff;
-  --folderTileBorder: rgba(0,0,0,.05);
-  --folderTileShadow: 0 1px 3px rgba(0,0,0,.04);
+  --folderTileBg:#ffffff;
+  --folderTileBorder:rgba(0,0,0,.05);
+  --folderTileShadow:0 1px 3px rgba(0,0,0,.04);
 
-  --folderTitleColor: #111827;
-  --folderBadgeText: #111827;
-  --folderBadgeBg: rgba(0,0,0,0.06);
-  --folderBadgeBorder: rgba(0,0,0,0.10);
+  --folderTitleColor:#111827;
+  --folderBadgeText:#111827;
+  --folderBadgeBg:rgba(0,0,0,0.06);
+  --folderBadgeBorder:rgba(0,0,0,0.10);
+
+  /* Folder hover polish */
+  --folderHoverLift:-2px;
+  --folderHoverShadow:0 10px 24px rgba(17,24,39,.14);
+  --folderHoverRing:0 0 0 2px rgba(26,115,232,.22);
+
+  /* =========================
+     Light surface text
+  ========================= */
+  --surfaceText:#202124;
+  --surfaceTextMuted:#5f6368;
+  --surfaceIcon:#202124;
 }
 
 /* Apple Glass */
@@ -212,88 +237,208 @@ html[data-theme="apple"]{
   --folderPreviewBg: rgba(255,255,255,0.16);
   --folderPreviewStroke: rgba(255,255,255,0.14);
 
+    /* Folder hover polish */
+  --folderHoverLift: -2px;
+  --folderHoverShadow: 0 16px 34px rgba(0,0,0,.35);
+  --folderHoverRing: 0 0 0 2px rgba(104,182,255,.22);
+
     /* Tile menu dropdown surface */
   --tileMenuBg: rgba(20, 24, 34, .94);
   --tileMenuBorder: rgba(255,255,255,.14);
   --tileMenuShadow: 0 14px 30px rgba(0,0,0,.45);
+  --menuBtnFg: rgba(255,255,255,.92);
 }
 
 /* Warm Studio */
 html[data-theme="warm"]{
-  --bg1:#f4c6b7;     /* peach */
-  --bg2:#e8a6a1;     /* blush coral */
 
-  --text: #2a1b14;
-  --muted: #5a3b30;
+  /* =========================
+     Background
+  ========================= */
+  --bg1:#f4c6b7;
+  --bg2:#e8a6a1;
 
-  --panel: rgba(255,255,255,.55);   /* soft frosted card */
-  --stroke: rgba(255,140,100,.35);
+  /* =========================
+     Panels / Surfaces
+  ========================= */
+  --panel:rgba(255,255,255,.55);
+  --stroke:rgba(255,140,100,.35);
 
-  --blur: 18px;
+  /* =========================
+     Text
+  ========================= */
+  --text:#2a1b14;
+  --muted:#5a3b30;
 
-  --accent: rgba(255,120,90,.95);   /* warm coral */
-  --accent2: rgba(255,160,120,.90); /* peach glow */
+  --textPrimary:#2a1b14;
+  --textSecondary:#5a3b30;
+  --iconColor:#2a1b14;
 
-  --shadow-lg: 0 20px 50px rgba(180,90,60,.35);
-  --shadow-md: 0 12px 30px rgba(180,90,60,.28);
-  --shadow-sm: 0 6px 18px rgba(180,90,60,.22);
+  /* =========================
+     Accent
+  ========================= */
+  --accent:rgba(255,120,90,.95);
+  --accent2:rgba(255,160,120,.90);
 
-  /* Overlay + hover tokens (migrated from legacy bottom blocks) */
-  --overlayBg: rgba(0,0,0,0.20);
-  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
+  /* =========================
+     Elevation
+  ========================= */
+  --shadow-lg:0 20px 50px rgba(180,90,60,.35);
+  --shadow-md:0 12px 30px rgba(180,90,60,.28);
+  --shadow-sm:0 6px 18px rgba(180,90,60,.22);
 
-  /* Folder visuals (theme vars only) */
-  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
-  --folderTileBorder: rgba(255, 140, 100, 0.35);
-  --folderTileShadow: rgba(0, 0, 0, 0.14) 0px 6px 18px 0px;
+  /* =========================
+     Overlay / Buttons
+  ========================= */
+  --overlayBg:rgba(0,0,0,.20);
+  --tileMenuBtnHoverBg:rgba(0,0,0,.10);
 
-  --folderTitleColor: rgb(42, 27, 20);
-  --folderPreviewBg: rgba(0,0,0,0.10);
-  --folderPreviewStroke: rgba(0,0,0,0.10);
+  /* =========================
+     Segmented Control
+  ========================= */
+  --segLabel:#2a1b14;
+  --segLabelMuted:#5a3b30;
 
-    /* Tile menu dropdown surface */
-  --tileMenuBg: rgba(255,255,255,.94);
-  --tileMenuBorder: rgba(17,24,39,.14);
-  --tileMenuShadow: 0 14px 30px rgba(17,24,39,.20);
+  --segText:var(--segLabelMuted);
+  --segHoverText:var(--segLabel);
+  --segActiveText:var(--accent);
+
+  --segActiveBg:rgba(255,120,90,.18);
+  --segActiveBorder:rgba(255,120,90,.35);
+  --segActiveShadow:none;
+
+  /* =========================
+     Tile Menu Surface
+  ========================= */
+  --tileMenuBg:rgba(255,255,255,.94);
+  --tileMenuBorder:rgba(17,24,39,.14);
+  --tileMenuShadow:0 14px 30px rgba(17,24,39,.20);
+
+  --tileMenuText:#2a1b14;
+  --tileMenuTextMuted:#5a3b30;
+
+  --tileMenuItemHoverBg:rgba(0,0,0,.06);
+  --tileMenuDangerText:#c0352b;
+  --tileMenuDangerHoverBg:rgba(200,60,40,.14);
+
+  /* =========================
+     Folder Tiles
+  ========================= */
+  --folderTileBg:oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
+  --folderTileBorder:rgba(255,140,100,.35);
+  --folderTileShadow:0 6px 18px rgba(0,0,0,.14);
+
+  --folderTitleColor:#2a1b14;
+  --folderPreviewBg:rgba(0,0,0,.10);
+  --folderPreviewStroke:rgba(0,0,0,.10);
+
+  /* Folder hover */
+  --folderHoverLift:-2px;
+  --folderHoverShadow:0 14px 28px rgba(180,90,60,.28);
+  --folderHoverRing:0 0 0 2px rgba(255,120,90,.22);
+
+  /* =========================
+     Light surface text
+  ========================= */
+  --surfaceText:#2a1b14;
+  --surfaceTextMuted:#5a3b30;
+  --surfaceIcon:#2a1b14;
 }
 
-/* ===== Windows Original ===== */
+/* Windows Original */
 html[data-theme="windows"]{
 
-  --bg1:#e9eef5;      /* light desktop blue-gray */
+  /* =========================
+     Background
+  ========================= */
+  --bg1:#e9eef5;
   --bg2:#d6dee9;
 
-  --text:#111827;     /* readable near-black */
-  --muted: #4b5563;
+  /* =========================
+     Panels / Surfaces
+  ========================= */
+  --panel:#ffffff;
+  --stroke:#c7d1df;
 
-  --panel:#ffffff;    /* white panels */
-  --stroke:#c7d1df;   /* soft gray border */
-  --blur: 0px;        /* no glass blur */
+  /* =========================
+     Text
+  ========================= */
+  --text:#111827;
+  --muted:#4b5563;
 
-  --accent:#2b579a;   /* classic Windows blue */
+  --textPrimary:#111827;
+  --textSecondary:#4b5563;
+  --iconColor:#111827;
+
+  /* =========================
+     Accent
+  ========================= */
+  --accent:#2b579a;
   --accent2:#1f3f73;
 
-  --shadow-lg: 0 6px 18px rgba(0,0,0,.12);
-  --shadow-md: 0 4px 10px rgba(0,0,0,.08);
-  --shadow-sm: 0 2px 4px rgba(0,0,0,.06);
+  /* =========================
+     Elevation
+  ========================= */
+  --shadow-lg:0 6px 18px rgba(0,0,0,.12);
+  --shadow-md:0 4px 10px rgba(0,0,0,.08);
+  --shadow-sm:0 2px 4px rgba(0,0,0,.06);
 
-  /* Overlay + hover tokens (migrated from legacy bottom blocks) */
-  --overlayBg: rgba(0,0,0,0.20);
-  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
+  /* =========================
+     Overlay / Buttons
+  ========================= */
+  --overlayBg:rgba(0,0,0,.20);
+  --tileMenuBtnHoverBg:rgba(0,0,0,.10);
 
-  /* Folder visuals (theme vars only) */
-  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
-  --folderTileBorder: rgb(199, 209, 223);
-  --folderTileShadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px;
+  /* =========================
+     Segmented Control
+  ========================= */
+  --segLabel:#111827;
+  --segLabelMuted:#4b5563;
 
-  --folderTitleColor: rgb(17, 24, 39);
-  --folderPreviewBg: rgba(0,0,0,0.08);
-  --folderPreviewStroke: rgba(0,0,0,0.10);
+  --segText:var(--segLabelMuted);
+  --segHoverText:var(--segLabel);
+  --segActiveText:var(--accent);
 
-    /* Tile menu dropdown surface */
-  --tileMenuBg: rgba(255,255,255,.96);
-  --tileMenuBorder: rgba(17,24,39,.14);
-  --tileMenuShadow: 0 14px 30px rgba(17,24,39,.18);
+  --segActiveBg:rgba(43,87,154,.16);
+  --segActiveBorder:rgba(43,87,154,.35);
+  --segActiveShadow:none;
+
+  /* =========================
+     Tile Menu Surface
+  ========================= */
+  --tileMenuBg:rgba(255,255,255,.96);
+  --tileMenuBorder:rgba(17,24,39,.14);
+  --tileMenuShadow:0 14px 30px rgba(17,24,39,.18);
+
+  --tileMenuText:#111827;
+  --tileMenuTextMuted:#4b5563;
+
+  --tileMenuItemHoverBg:rgba(17,24,39,.06);
+  --tileMenuDangerText:#d13438;
+  --tileMenuDangerHoverBg:rgba(209,52,56,.14);
+
+  /* =========================
+     Folder Tiles
+  ========================= */
+  --folderTileBg:oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
+  --folderTileBorder:#c7d1df;
+  --folderTileShadow:0 4px 12px rgba(0,0,0,.12);
+
+  --folderTitleColor:#111827;
+  --folderPreviewBg:rgba(0,0,0,.08);
+  --folderPreviewStroke:rgba(0,0,0,.10);
+
+  /* Folder hover */
+  --folderHoverLift:-2px;
+  --folderHoverShadow:0 10px 22px rgba(17,24,39,.16);
+  --folderHoverRing:0 0 0 2px rgba(43,87,154,.22);
+
+  /* =========================
+     Light surface text
+  ========================= */
+  --surfaceText:#111827;
+  --surfaceTextMuted:#4b5563;
+  --surfaceIcon:#111827;
 }
 
 /* =========================
@@ -635,6 +780,8 @@ main{padding:18px}
 
   display: grid;
   place-items: center;
+  
+  color: var(--menuBtnFg, currentColor) !important;
 
   /* Hide literal text inside button */
   font-size: 0;
@@ -648,33 +795,6 @@ main{padding:18px}
 
   transform: translateZ(0);
   transition: opacity .15s ease, background .15s ease, transform .12s ease;
-}
-
-/* Minimal Google-style ⋯ button */
-.tileMenuBtn{
-  position: absolute;
-
-  top: var(--sp-2);
-  right: var(--sp-2);
-
-  width: 20px;
-  height: 20px;
-
-  display: grid;
-  place-items: center;
-
-  border: none;
-  background: transparent;
-
-  font-size: 16px;
-  line-height: 1;
-
-  color: var(--menuBtnFg, rgba(0,0,0,.65));
-
-  cursor: pointer;
-
-  opacity: .55;
-  transition: opacity .15s ease, transform .12s ease;
 }
 
 .tileMenuBtn:hover{
@@ -1711,7 +1831,6 @@ dialog.dialog > form.form {
   box-shadow: 0 4px 12px rgba(17,24,39,.10);
 }
 
-/* ===== Tile menu: compact + readable ===== */
 /* ===== Tile menu: compact + readable (variable-driven) ===== */
 .tileMenu{
   min-width: 120px !important;
@@ -1721,6 +1840,9 @@ dialog.dialog > form.form {
   background: var(--tileMenuBg, rgba(20, 24, 34, .94)) !important;
   border: 1px solid var(--tileMenuBorder, rgba(255,255,255,.14)) !important;
   box-shadow: var(--tileMenuShadow, 0 14px 30px rgba(0,0,0,.45)) !important;
+
+  /* Menu text always comes from theme tokens */
+  color: var(--tileMenuText, var(--text)) !important;
 
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -1739,7 +1861,9 @@ dialog.dialog > form.form {
   border-radius: 10px !important;
 
   background: transparent !important;
-  color: rgba(255,255,255,.92) !important;
+
+  /* IMPORTANT: do NOT force white here — it breaks light themes */
+  color: inherit !important;
 
   font-size: 13px !important;
   font-weight: 650 !important;
@@ -1749,15 +1873,17 @@ dialog.dialog > form.form {
 }
 
 .tileMenu button:hover{
-  background: rgba(255,255,255,.10) !important;
+  /* Hover highlight (tokenized) */
+  background: var(--tileMenuItemHoverBg, rgba(255,255,255,.10)) !important;
 }
 
+/* Destructive action */
 .tileMenu button.danger{
-  color: rgba(255, 120, 120, .95) !important;
+  color: var(--tileMenuDangerText, rgba(255, 120, 120, .95)) !important;
 }
 
 .tileMenu button.danger:hover{
-  background: rgba(255, 80, 80, .18) !important;
+  background: var(--tileMenuDangerHoverBg, rgba(255, 80, 80, .18)) !important;
 }
 
 /* Settings dialog: keep tile menu button interactive (prevents drag reorder glitch) */
@@ -1969,10 +2095,9 @@ dialog.dialog .tileMenuBtn{
 
 .segBtn:hover{
   background: rgba(255,255,255,0.08);
-  color: var(--text-primary, #fff);
+  color: var(--segHoverText, var(--segText, var(--text)));
 }
 
-segBtn[aria-checked="true"],
 .segBtn[aria-checked="true"]{
   background: var(--segActiveBg, rgba(255,255,255,0.14));
   color: var(--segActiveText, #fff);
@@ -2311,8 +2436,13 @@ segBtn[aria-checked="true"],
 ========================= */
 
 #grid.folders .folderTile:hover{
-  transform: translateY(-2px);
-  box-shadow: var(--folderTileShadow, var(--shadow-1)), var(--shadow-2);
+  transform: translateY(var(--folderHoverLift, -2px));
+
+  box-shadow:
+    var(--folderTileShadow, var(--shadow-1)),
+    var(--folderHoverShadow, var(--shadow-2)),
+    var(--folderHoverRing, 0 0 0 rgba(0,0,0,0));
+
   background: color-mix(in oklab, var(--folderTileBg, color-mix(in oklab, var(--panel) 45%, transparent)) 88%, white);
   border-color: color-mix(in oklab, var(--folderTileBorder, color-mix(in oklab, var(--stroke) 55%, transparent)) 75%, white);
 }
@@ -2324,8 +2454,11 @@ segBtn[aria-checked="true"],
 
 /* crisp highlight ring on hover/focus (high-end feel) */
 #grid.folders .folderTile:focus-visible{
-  outline: 2px solid rgba(255,255,255,0.28);
-  outline-offset: 4px;
+  outline: none;
+  box-shadow:
+    var(--folderTileShadow, var(--shadow-1)),
+    var(--folderHoverShadow, var(--shadow-2)),
+    var(--folderHoverRing, 0 0 0 2px rgba(255,255,255,0.28));
 }
 
 /* Folders mode: smooth slider resizing (Folders only) */
@@ -2342,13 +2475,17 @@ segBtn[aria-checked="true"],
     height 120ms var(--ease-ui),
     transform var(--dur-ui) var(--ease-ui),
     box-shadow var(--dur-ui) var(--ease-ui),
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 14px;
-  line-height: 1;
-  opacity: 0.9;
+    background var(--dur-ui) var(--ease-ui),
+    border-color var(--dur-ui) var(--ease-ui);
+
+  border-radius: var(--r-xl);
+  background: var(--folderTileBg, color-mix(in oklab, var(--panel) 45%, transparent));
+  border: 1px solid var(--folderTileBorder, color-mix(in oklab, var(--stroke) 55%, transparent));
+  box-shadow: var(--folderTileShadow, var(--shadow-1));
+  color: var(--text);
+
+  --fhInset: clamp(8px, calc(var(--tileFolder, 140px) * 0.055), 14px);
+  padding: var(--fhInset);
 }
 
 /* END */
