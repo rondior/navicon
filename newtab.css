@@ -838,37 +838,6 @@ main{padding:18px}
   opacity: 1;
 }
 
-.menu{
-  position:absolute; top:46px; right:10px;
-  min-width:160px;
-
-  display:none;
-  padding:6px;
-
-  border-radius:14px;
-  border:1px solid var(--stroke);
-
-  background: color-mix(in oklab, var(--panel) 92%, rgba(0,0,0,.35));
-  box-shadow: var(--shadow-lg);
-
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-}
-
-.menu button{
-  width:100%;
-  text-align:left;
-  padding:10px 10px;
-  border:0;
-  background:transparent;
-  color:var(--text);
-  border-radius:10px;
-  cursor:pointer;
-}
-.menu button:hover{
-  background: color-mix(in oklab, var(--accent) 18%, var(--panel));
-}
-
 .divider{
   margin:16px 0;
   border:none;
@@ -1496,14 +1465,6 @@ body > .tileMenu.open{
     border: 1px solid var(--stroke);
   }
 
-  .menu{
-    background: var(--panel);
-    border: 1px solid var(--stroke);
-  }
-  .menu button:hover{
-    background: rgba(255,255,255,.10);
-  }
-
   .form input{
     background: rgba(255,255,255,.06);
     border: 1px solid var(--stroke);
@@ -2086,6 +2047,9 @@ dialog.dialog .tileMenuBtn{
   font-weight: 500;
   border-radius: var(--r-md);
   cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
   color: var(--segText, var(--text));
   transition:
     background var(--dur-ui) var(--ease-ui),
@@ -2106,13 +2070,6 @@ dialog.dialog .tileMenuBtn{
 
 .segBtn:active{
   transform: scale(0.96);
-}
-
-.segBtn{
-  display:inline-flex;
-  align-items:center;
-  gap: 8px;
-  color: var(--segText, var(--text));
 }
 
 .segIcon{
@@ -2145,12 +2102,6 @@ dialog.dialog .tileMenuBtn{
 /* =========================
    Folders Mode
 ========================= */
-
-.folderTile:hover{
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
-  background: rgba(255,255,255,0.10);
-}
 
 .folderCount{
   font-size: 12px;
@@ -2359,17 +2310,6 @@ dialog.dialog .tileMenuBtn{
   display: none !important;
 }
 
-.grid.folders .folderTile{
-  width: var(--tileFolder, 140px);
-  height: var(--tileFolder, 140px);
-  position: relative;
-  overflow: hidden;
-
-  /* vertical balance */
-  display: flex;
-  flex-direction: column;
-}
-
 /* Header/title area (Folders-only) */
 #grid.folders .folderHead{
   flex: 0 0 auto;
@@ -2470,6 +2410,17 @@ dialog.dialog .tileMenuBtn{
 }
 
 #grid.folders .folderTile{
+  /* Base structure (migrated from old folders selector) */
+  width: var(--tileFolder, 140px);
+  height: var(--tileFolder, 140px);
+  position: relative;
+  overflow: hidden;
+
+  /* vertical balance */
+  display: flex;
+  flex-direction: column;
+
+  /* Motion */
   transition:
     width 120ms var(--ease-ui),
     height 120ms var(--ease-ui),
@@ -2478,12 +2429,14 @@ dialog.dialog .tileMenuBtn{
     background var(--dur-ui) var(--ease-ui),
     border-color var(--dur-ui) var(--ease-ui);
 
+  /* Visual styling */
   border-radius: var(--r-xl);
   background: var(--folderTileBg, color-mix(in oklab, var(--panel) 45%, transparent));
   border: 1px solid var(--folderTileBorder, color-mix(in oklab, var(--stroke) 55%, transparent));
   box-shadow: var(--folderTileShadow, var(--shadow-1));
   color: var(--text);
 
+  /* Internal spacing */
   --fhInset: clamp(8px, calc(var(--tileFolder, 140px) * 0.055), 14px);
   padding: var(--fhInset);
 }
