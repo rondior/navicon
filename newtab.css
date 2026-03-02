@@ -73,7 +73,7 @@
   --menuBtnBg: rgba(255,255,255,.06);
   --menuBtnBorder: rgba(255,255,255,.08);
 
-    /* =========================
+  /* =========================
      Parity Tokens (defaults)
      Ensures components have complete fallbacks
   ========================= */
@@ -226,6 +226,18 @@ html[data-theme="google"]{
   --surfaceText:#202124;
   --surfaceTextMuted:#5f6368;
   --surfaceIcon:#202124;
+
+    /* =========================
+     Dialog Tokens
+  ========================= */
+  --dialogBg: rgba(255,255,255,.96);
+  --dialogText: #111827;
+
+  --dialogFieldBg: rgba(255,255,255,.92);
+  --dialogFieldText: #111827;
+  --dialogFieldBorder: rgba(17,24,39,.22);
+
+  --dialogBtnText: #111827;
 }
 
 /* Apple Glass */
@@ -343,6 +355,18 @@ html[data-theme="apple"]{
   --tileMenuBg: rgba(20, 24, 34, .94);
   --tileMenuBorder: rgba(255,255,255,.14);
   --tileMenuShadow: 0 14px 30px rgba(0,0,0,.45);
+
+    /* =========================
+     Dialog Tokens
+  ========================= */
+  --dialogBg: rgba(255,255,255,.92);
+  --dialogText: #111111;
+
+  --dialogFieldBg: rgba(255,255,255,.95);
+  --dialogFieldText: #111111;
+  --dialogFieldBorder: rgba(17,17,17,.18);
+
+  --dialogBtnText: #111111;
 }
 
 /* Warm Studio */
@@ -439,6 +463,18 @@ html[data-theme="warm"]{
   --surfaceText:#2a1b14;
   --surfaceTextMuted:#5a3b30;
   --surfaceIcon:#2a1b14;
+
+    /* =========================
+     Dialog Tokens
+  ========================= */
+  --dialogBg: rgba(255,255,255,.92);
+  --dialogText: #2a1b14;
+
+  --dialogFieldBg: rgba(255,255,255,.92);
+  --dialogFieldText: #2a1b14;
+  --dialogFieldBorder: rgba(42,27,20,.22);
+
+  --dialogBtnText: #2a1b14;
 }
 
 /* Windows Original */
@@ -548,48 +584,62 @@ html[data-theme="windows"]{
   --surfaceText:#111827;
   --surfaceTextMuted:#4b5563;
   --surfaceIcon:#111827;
+
+    /* =========================
+     Dialog Tokens
+  ========================= */
+  --dialogBg: rgba(255,255,255,.96);
+  --dialogText: #111827;
+
+  --dialogFieldBg: rgba(255,255,255,.92);
+  --dialogFieldText: #111827;
+  --dialogFieldBorder: rgba(17,24,39,.22);
+
+  --dialogBtnText: #111827;
 }
 
 /* =========================
-   THEME DIALOG OVERRIDES (COMPONENT-SCOPED)
-   Keeps dialogs readable across themes.
-   Note: no :root[data-theme=...] selectors (architecture)
+   DIALOG SYSTEM (TOKEN-DRIVEN)
+   Architecture:
+   - Themes define dialog tokens only
+   - Components consume dialog tokens
+   - No theme-scoped dialog selectors allowed
 ========================= */
 
-/* Google: readable dialog surface + text */
-html[data-theme="google"] dialog.dialog > form.form{
-  background: rgba(255,255,255,.96) !important;
-  color: #111827 !important;
-}
-html[data-theme="google"] dialog.dialog > form.form *{
-  color: #111827 !important;
+/* Token defaults (fallback if a theme forgets something) */
+:root{
+  --dialogBg: var(--panel);
+  --dialogText: var(--text);
+
+  --dialogFieldBg: color-mix(in oklab, var(--panel) 85%, #ffffff 15%);
+  --dialogFieldText: var(--dialogText);
+  --dialogFieldBorder: color-mix(in oklab, var(--stroke) 80%, transparent);
+
+  --dialogBtnText: var(--dialogText);
 }
 
-/* Visible input borders in light themes (Google / Windows / Warm) */
-html[data-theme="google"] dialog.dialog > form.form input,
-html[data-theme="google"] dialog.dialog > form.form select,
-html[data-theme="windows"] dialog.dialog > form.form input,
-html[data-theme="windows"] dialog.dialog > form.form select,
-html[data-theme="warm"] dialog.dialog > form.form input,
-html[data-theme="warm"] dialog.dialog > form.form select{
-  border: 1px solid rgba(17,24,39,.22) !important;
-  background: rgba(255,255,255,.92) !important;
+/* Dialog surface */
+dialog.dialog > form.form{
+  background: var(--dialogBg) !important;
+  color: var(--dialogText) !important;
 }
 
-/* Apple Glass: force readable dialog surface + controls */
-html[data-theme="apple"] dialog.dialog > form.form{
-  background: rgba(255,255,255,.92) !important;
-  color: #111111 !important;
-}
-html[data-theme="apple"] dialog.dialog > form.form *{
+/* Dialog typography inherits cleanly */
+dialog.dialog > form.form *{
   color: inherit !important;
 }
-html[data-theme="apple"] dialog.dialog > form.form .btn{
-  color: #111111 !important;
+
+/* Inputs/selects: readable across themes */
+dialog.dialog > form.form input,
+dialog.dialog > form.form select{
+  background: var(--dialogFieldBg) !important;
+  color: var(--dialogFieldText) !important;
+  border: 1px solid var(--dialogFieldBorder) !important;
 }
-html[data-theme="apple"] dialog.dialog > form.form input{
-  color: #111111 !important;
-  background: rgba(255,255,255,.95) !important;
+
+/* Buttons inside dialog */
+dialog.dialog > form.form .btn{
+  color: var(--dialogBtnText) !important;
 }
 
 *{box-sizing:border-box}
