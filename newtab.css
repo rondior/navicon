@@ -690,6 +690,8 @@ body{
   position:sticky; top:0;
   display:flex; align-items:center; justify-content:space-between;
   padding:16px 18px;
+  z-index: 1000;
+  isolation: isolate;
 
   background: var(--topbarBg, color-mix(in oklab, var(--panel) 70%, transparent));
   border-bottom: 1px solid var(--topbarBorder, var(--stroke));
@@ -1613,6 +1615,9 @@ body > .tileMenu.open{
 @supports not (background: color-mix(in oklab, white, black)) {
 
   .topbar{
+    z-index: 1000;
+    isolation: isolate;
+
     background: rgba(0,0,0,.35);
     border-bottom: 1px solid var(--stroke);
   }
@@ -2319,7 +2324,7 @@ dialog.dialog .tileMenuBtn{
       calc((100% - (var(--fpPad) * 2) - (var(--fpGap) * (var(--fpCols) - 1))) / var(--fpCols)),
       calc((100% - (var(--fpPad) * 2) - (var(--fpGap) * (var(--fpRows) - 1))) / var(--fpRows))
     ),
-    56px
+    clamp(56px, calc(var(--tileFolder, 140px) * 0.33), 96px)
   );
 
   grid-template-columns: repeat(var(--fpCols), var(--fpCell));
@@ -2351,8 +2356,9 @@ dialog.dialog .tileMenuBtn{
     inset 0 0 0 1px color-mix(in oklab, var(--stroke) 65%, transparent),
     0 1px 0 rgba(255,255,255,0.08);
 
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   /* keeps icon breathing room consistent */
   padding: clamp(3px, calc(var(--fpCell, 44px) * 0.06), 7px);
@@ -2364,8 +2370,8 @@ dialog.dialog .tileMenuBtn{
 }
 
 #grid.folders .folderPreviewImg{
-  width:  calc(var(--fpCell, 44px) * 0.84);
-  height: calc(var(--fpCell, 44px) * 0.84);
+  width: 94%;
+  height: 94%;
   object-fit: contain;
   display: block;
 }

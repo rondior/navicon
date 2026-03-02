@@ -332,9 +332,28 @@ function applyTileSize(px) {
   const root = document.documentElement;
   const mode = root.dataset.layoutMode || "flat";
 
-  // Always use the actual slider bounds for the active mode (source of truth)
-  const min = Number(sizeRange?.min ?? (mode === "folders" ? 110 : 72));
-  const max = Number(sizeRange?.max ?? (mode === "folders" ? 260 : 160));
+  // Mode-specific slider bounds (prevents cross-mode weirdness)
+  const FLAT_MIN = 72;
+  const FLAT_MAX = 160;
+
+  // Slightly larger minimum for folders so 3x3 preview never feels cramped
+  const FOLDER_MIN = 130;
+  const FOLDER_MAX = 260;
+
+  // Keep the range control in sync with the current mode
+  if (sizeRange) {
+    if (mode === "folders") {
+      sizeRange.min = String(FOLDER_MIN);
+      sizeRange.max = String(FOLDER_MAX);
+    } else {
+      sizeRange.min = String(FLAT_MIN);
+      sizeRange.max = String(FLAT_MAX);
+    }
+  }
+
+  // Source of truth: the active mode bounds
+  const min = (mode === "folders") ? FOLDER_MIN : FLAT_MIN;
+  const max = (mode === "folders") ? FOLDER_MAX : FLAT_MAX;
 
   const raw = Number(px);
   const clamped = Math.max(min, Math.min(max, Number.isFinite(raw) ? raw : max));
@@ -343,10 +362,9 @@ function applyTileSize(px) {
     // Folders mode: slider drives folder tile size directly
     root.style.setProperty("--tileFolder", clamped + "px");
 
-    // Keep --tile stable for topbar/button sizing (do NOT let folders blow up the whole UI)
+    // Keep --tile stable for topbar/button sizing
     root.style.setProperty("--tile", "160px");
 
-    // Keep thumb synced (no forced cap)
     if (sizeRange) sizeRange.value = String(clamped);
     return;
   }
@@ -722,7 +740,9 @@ function renderFolderTile(groupName, items) {
   btn.className = "folderTile";
   btn.dataset.group = groupName;
 
-    // Header: title only (count becomes a corner badge)
+  // =========================
+  // Header (title only)
+  // =========================
   const head = document.createElement("div");
   head.className = "folderHead";
 
@@ -732,40 +752,37 @@ function renderFolderTile(groupName, items) {
 
   head.appendChild(title);
 
+  // =========================
   // Count badge (top-right)
+  // =========================
   const count = document.createElement("div");
   count.className = "folderCountBadge";
   count.textContent = String(items?.length ?? 0);
 
-    // Preview grid (size-aware cap: 6 -> 12, always 3 columns)
+  // =========================
+  // Preview grid (always 3x3 = 9 icons)
+  // =========================
   const preview = document.createElement("div");
   preview.className = "folderPreview";
 
-  // Read current folder tile size from CSS var (folders mode uses --tileFolder)
-  const root = document.documentElement;
-  const tfRaw = getComputedStyle(root).getPropertyValue("--tileFolder").trim();
-  const tileFolderPx = Number.parseFloat(tfRaw) || 140;
+  const COLS = 3;
+  const ROWS = 3;
+  const PREVIEW_MAX = 9;
+  const targetCells = COLS * ROWS;
 
-  // Map tileFolder range [110..260] -> previewMax [6..12]
-  const minTF = 110, maxTF = 260;
-  const minPrev = 6, maxPrev = 12;
+  preview.style.setProperty("--fpRows", String(ROWS));
+  preview.style.setProperty("--fpCols", String(COLS));
 
-  const t = Math.max(0, Math.min(1, (tileFolderPx - minTF) / (maxTF - minTF)));
-  const previewMax = Math.max(minPrev, Math.min(maxPrev, Math.round(minPrev + t * (maxPrev - minPrev))));
+  const previewItems = (items || []).slice(0, PREVIEW_MAX);
 
-  // Rows: 2..4 (3 columns). This keeps the preview visually stable.
-  const cols = 3;
-  const rows = Math.max(2, Math.min(4, Math.ceil(previewMax / cols)));
-  const targetCells = rows * cols;
-
-  preview.style.setProperty("--fpRows", String(rows));
-
-  const previewItems = (items || []).slice(0, previewMax);
   for (const link of previewItems) {
     const cell = document.createElement("div");
     cell.className = "folderPreviewItem";
 
-    const host = (() => { try { return new URL(link.url).hostname; } catch { return ""; } })();
+    const host = (() => {
+      try { return new URL(link.url).hostname; }
+      catch { return ""; }
+    })();
 
     const img = document.createElement("img");
     img.className = "folderPreviewImg";
@@ -773,14 +790,36 @@ function renderFolderTile(groupName, items) {
     img.decoding = "async";
     img.loading = "lazy";
 
-    if (host) {
-      img.src = `https://icons.duckduckgo.com/ip3/${host}.ico`;
-    } else {
-      img.src = "";
-    }
+    // =========================
+    // Crisp favicon chain
+    // 1) Google high-res PNG
+    // 2) DuckDuckGo ICO fallback
+    // 3) Remove if both fail
+    // =========================
+    const googleSrc = host
+      ? `https://www.google.com/s2/favicons?domain=${host}&sz=256`
+      : "";
 
-    // If favicon fails, hide the img (keeps layout clean)
+    const ddgSrc = host
+      ? `https://icons.duckduckgo.com/ip3/${host}.ico`
+      : "";
+
+    let triedFallback = false;
+
+    img.src = googleSrc;
+
     img.addEventListener("error", () => {
+      if (!host) {
+        img.remove();
+        return;
+      }
+
+      if (!triedFallback) {
+        triedFallback = true;
+        img.src = ddgSrc;
+        return;
+      }
+
       img.remove();
     });
 
@@ -788,7 +827,7 @@ function renderFolderTile(groupName, items) {
     preview.appendChild(cell);
   }
 
-  // Pad with empties to keep a consistent 3x(2..4) grid footprint
+  // Pad with empty cells to maintain stable 3x3 footprint
   for (let i = previewItems.length; i < targetCells; i++) {
     const empty = document.createElement("div");
     empty.className = "folderPreviewItem isEmpty";
@@ -799,8 +838,8 @@ function renderFolderTile(groupName, items) {
   btn.appendChild(count);
   btn.appendChild(preview);
 
-  // Click (modal behavior added next step)
-    btn.addEventListener("click", () => {
+  // Open folder modal on click
+  btn.addEventListener("click", () => {
     openFolderModal(groupName, items || []);
   });
 
@@ -808,42 +847,30 @@ function renderFolderTile(groupName, items) {
 }
 
 async function refreshFolderPreviews() {
-  const root = document.documentElement;
-
-  // Read current folder tile size from CSS var
-  const tfRaw = getComputedStyle(root).getPropertyValue("--tileFolder").trim();
-  const tileFolderPx = Number.parseFloat(tfRaw) || 140;
-
-  // Map tileFolder range [110..260] -> previewMax [6..12]
-  const minTF = 110, maxTF = 260;
-  const minPrev = 6, maxPrev = 12;
-
-  const t = Math.max(0, Math.min(1, (tileFolderPx - minTF) / (maxTF - minTF)));
-  const previewMax = Math.max(
-    minPrev,
-    Math.min(maxPrev, Math.round(minPrev + t * (maxPrev - minPrev)))
-  );
-
-  const cols = 3;
-  const rows = Math.max(2, Math.min(4, Math.ceil(previewMax / cols)));
-  const targetCells = rows * cols;
+  // Always show 9 icons (3x3) in folder preview
+  const COLS = 3;
+  const ROWS = 3;
+  const PREVIEW_MAX = 9;
+  const targetCells = COLS * ROWS;
 
   // Load once (prevents jitter / flashing)
   const links = await loadLinksEnsured();
   const groups = await buildGroups(links);
 
   document
-    .querySelectorAll('#grid.folders .folderTile')
+    .querySelectorAll("#grid.folders .folderTile")
     .forEach((btn) => {
       const groupName = btn.dataset.group || "";
+
       const preview = btn.querySelector(".folderPreview");
       if (!preview) return;
 
-      // Sync CSS row math
-      preview.style.setProperty("--fpRows", String(rows));
+      // Keep CSS math fully locked to 3x3
+      preview.style.setProperty("--fpRows", String(ROWS));
+      preview.style.setProperty("--fpCols", String(COLS));
 
       const items = groups.get(groupName) || [];
-      const previewItems = items.slice(0, previewMax);
+      const previewItems = items.slice(0, PREVIEW_MAX);
 
       // Only rebuild the preview area (not the whole tile/grid)
       preview.innerHTML = "";
@@ -862,17 +889,45 @@ async function refreshFolderPreviews() {
         img.alt = "";
         img.decoding = "async";
         img.loading = "lazy";
-        img.src = host
+
+        // =========================
+        // Crisp favicon chain
+        // 1) Google high-res PNG
+        // 2) DuckDuckGo ICO fallback
+        // 3) Remove if both fail
+        // =========================
+        const googleSrc = host
+          ? `https://www.google.com/s2/favicons?domain=${host}&sz=256`
+          : "";
+
+        const ddgSrc = host
           ? `https://icons.duckduckgo.com/ip3/${host}.ico`
           : "";
 
-        img.addEventListener("error", () => img.remove());
+        let triedFallback = false;
+
+        img.src = googleSrc;
+
+        img.addEventListener("error", () => {
+          if (!host) {
+            img.remove();
+            return;
+          }
+
+          if (!triedFallback) {
+            triedFallback = true;
+            img.src = ddgSrc;
+            return;
+          }
+
+          img.remove();
+        });
 
         cell.appendChild(img);
         preview.appendChild(cell);
       }
 
-      // Pad to maintain stable 3 x (2–4) footprint
+      // Pad with empties to maintain stable 3x3 footprint
       for (let i = previewItems.length; i < targetCells; i++) {
         const empty = document.createElement("div");
         empty.className = "folderPreviewItem isEmpty";
