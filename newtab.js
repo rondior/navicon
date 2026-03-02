@@ -126,18 +126,23 @@ async function deleteTile(id) {
 }
 
 function applyGroupDensitySizing() {
-  const isGrouped = grid.classList.contains("grouped");
+  const root = document.documentElement;
+  const mode = root.dataset.layoutMode || "flat";
+
+  // Sections layout only (never flat, never folders)
+  const isSections = mode === "sections";
+
+  // Always read the authoritative tile size from computed root style
+  const rootTile = parseFloat(
+    getComputedStyle(root).getPropertyValue("--tile")
+  ) || 160;
 
   document.querySelectorAll(".groupSection").forEach(section => {
-    // Always let the slider-driven --tile control tile size everywhere.
+    // Never allow local overrides
     section.style.removeProperty("--tileLocal");
 
-    // Keep compact styling as a readability mode when tiles are small.
-    const rootTile = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue("--tile")
-    ) || 160;
-
-    section.classList.toggle("compact", isGrouped && rootTile <= 120);
+    // Compact applies ONLY in Sections when tiles are small
+    section.classList.toggle("compact", isSections && rootTile <= 120);
   });
 }
 
@@ -332,47 +337,33 @@ function applyTileSize(px) {
   const root = document.documentElement;
   const mode = root.dataset.layoutMode || "flat";
 
-  // Mode-specific slider bounds (prevents cross-mode weirdness)
-  const FLAT_MIN = 72;
-  const FLAT_MAX = 160;
+  // Slider is globally fixed (must match #sizeRange bounds)
+  const SLIDER_MIN = 72;
+  const SLIDER_MAX = 160;
 
-  // Slightly larger minimum for folders so 3x3 preview never feels cramped
-  const FOLDER_MIN = 130;
+  // Folders should feel bigger (mapped from slider range)
+  const FOLDER_MIN = 120;
   const FOLDER_MAX = 260;
 
-  // Keep the range control in sync with the current mode
-  if (sizeRange) {
-    if (mode === "folders") {
-      sizeRange.min = String(FOLDER_MIN);
-      sizeRange.max = String(FOLDER_MAX);
-    } else {
-      sizeRange.min = String(FLAT_MIN);
-      sizeRange.max = String(FLAT_MAX);
-    }
-  }
-
-  // Source of truth: the active mode bounds
-  const min = (mode === "folders") ? FOLDER_MIN : FLAT_MIN;
-  const max = (mode === "folders") ? FOLDER_MAX : FLAT_MAX;
-
   const raw = Number(px);
-  const clamped = Math.max(min, Math.min(max, Number.isFinite(raw) ? raw : max));
+  const sliderVal = Number.isFinite(raw) ? raw : SLIDER_MAX;
+  const clamped = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, sliderVal));
 
   if (mode === "folders") {
-    // Folders mode: slider drives folder tile size directly
-    root.style.setProperty("--tileFolder", clamped + "px");
+    // Map slider (72..160) -> folder tile size (120..260)
+    const t = (clamped - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN); // 0..1
+    const folderPx = Math.round(FOLDER_MIN + t * (FOLDER_MAX - FOLDER_MIN));
 
-    // Keep --tile stable for topbar/button sizing
+    root.style.setProperty("--tileFolder", `${folderPx}px`);
+
+    // Keep --tile stable for topbar/button sizing (do not scale topbar with folders)
     root.style.setProperty("--tile", "160px");
 
-    if (sizeRange) sizeRange.value = String(clamped);
     return;
   }
 
   // Flat + Sections: slider drives --tile directly
-  root.style.setProperty("--tile", clamped + "px");
-
-  if (sizeRange) sizeRange.value = String(clamped);
+  root.style.setProperty("--tile", `${clamped}px`);
 }
 
 async function ensureIds(links) {
@@ -1285,16 +1276,12 @@ try {
     btn.setAttribute("aria-checked", active ? "true" : "false");
   });
 
-    // Tile size slider (id is sizeRange in newtab.html) — mode-aware
-  const sizeRange = document.getElementById("sizeRange");
-  if (sizeRange) {
-    const v = (layoutMode === "folders")
-      ? (typeof s.folderTileSize === "number" ? s.folderTileSize : 140)
-      : (typeof s.tileSize === "number" ? s.tileSize : 160);
-
-        // NOTE: do not set sizeRange.value here.
-    // The slider is owned by init/mode-switch logic + applyTileSize() + the slider handlers.
-  }
+  // Tile size slider is owned by init/mode-switch logic + applyTileSize() + handlers.
+// Do not compute mode-aware values here (prevents slider snapping).
+const sizeRange = document.getElementById("sizeRange");
+if (sizeRange) {
+  // intentionally empty
+}
 } catch {}
 
   await updateProBadges();  // ← ADD THIS LINE HERE
@@ -1402,13 +1389,9 @@ if (!s.tileSizeUserSet) {
 }
 
 {
-  const root = document.documentElement;
-  const mode = root.dataset.layoutMode || "flat";
-  const start = (mode === "folders")
-    ? (s.folderTileSize ?? 140)
-    : (s.tileSize ?? 160);
+  // Single source of truth: slider value must persist across ALL modes/themes
+  const start = Number(s.tileSize ?? 160);
   applyTileSize(start);
-  if (sizeRange) sizeRange.value = String(start);
 }
 
 if (sizeRange) {
@@ -1441,11 +1424,8 @@ if (sizeRange) {
 
     const raw = Number(e.target.value) || 160;
 
-    if (mode === "folders") {
-      cur.folderTileSize = raw;
-    } else {
-      cur.tileSize = raw;
-    }
+  // Single source of truth for slider across ALL modes/themes
+  cur.tileSize = raw;
 
     cur.tileSizeUserSet = true;
     await saveSettings(cur);
@@ -1460,21 +1440,20 @@ if (sizeResetBtn) {
     const root = document.documentElement;
   const mode = root.dataset.layoutMode || "flat";
 
-  const resetVal = (mode === "folders") ? 110 : 72;
+  // Single source of truth for slider across ALL modes/themes
+  const resetVal = 72;
+  cur.tileSize = resetVal;
 
-if (mode === "folders") cur.folderTileSize = resetVal;
-else cur.tileSize = resetVal;
+  cur.tileSizeUserSet = true;
+  await saveSettings(cur);
 
-cur.tileSizeUserSet = true;
-await saveSettings(cur);
-
-if (sizeRange) sizeRange.value = String(resetVal);
-applyTileSize(resetVal);
+  if (sizeRange) sizeRange.value = String(resetVal);
+  applyTileSize(resetVal);
   });
 }
 
   // Groups toggle
-if (layoutModeControl) {
+  if (layoutModeControl) {
   const buttons = Array.from(layoutModeControl.querySelectorAll(".segBtn"));
 
   const paint = (mode) => {
@@ -1488,27 +1467,21 @@ if (layoutModeControl) {
   (async () => {
     const s = await loadSettings();
     paint(s.layoutMode || (s.groupMode ? "sections" : "flat"));
-    // Keep root dataset in sync so applyTileSize() always knows the real mode
+
+  // Keep root dataset in sync so applyTileSize() always knows the real mode
     document.documentElement.dataset.layoutMode = (s.layoutMode || (s.groupMode ? "sections" : "flat"));
-        // Init slider bounds/value for the active mode on page load
-    if (sizeRange) {
-      const mode = document.documentElement.dataset.layoutMode || "flat";
-      if (mode === "folders") {
-        sizeRange.min = "110";
-        sizeRange.max = "260";
-        sizeRange.step = "1";
-        const v = Number(s.folderTileSize ?? 140);
-        sizeRange.value = String(v);
-        applyTileSize(v);
-      } else {
-        sizeRange.min = "72";
-        sizeRange.max = "160";
-        sizeRange.step = "1";
-        const v = Number(s.tileSize ?? 160);
-        sizeRange.value = String(v);
-        applyTileSize(v);
-      }
-    }
+    
+  // Init slider once (single source of truth across ALL modes)
+  if (sizeRange) {
+    sizeRange.min = "72";
+    sizeRange.max = "160";
+    sizeRange.step = "1";
+
+    const v = Number(s.tileSize ?? 160);
+    sizeRange.value = String(v);
+
+    applyTileSize(v);
+}
   })();
 
   // Click handler: set layoutMode, persist, repaint, then render
@@ -1553,27 +1526,12 @@ if (layoutModeControl) {
     paint(nextMode);
     document.documentElement.dataset.layoutMode = nextMode;
 
-        // --- Mode-specific size slider bounds + value (Flat/Sections vs Folders) ---
-    if (sizeRange) {
-      // Bounds by mode
-      if (nextMode === "folders") {
-        sizeRange.min = "110";
-        sizeRange.max = "260";
-        sizeRange.step = "1";
-
-        const v = Number(s2.folderTileSize ?? 140);
-        sizeRange.value = String(v);
-        applyTileSize(v);
-      } else {
-        sizeRange.min = "72";
-        sizeRange.max = "160";
-        sizeRange.step = "1";
-
-        const v = Number(s2.tileSize ?? 160);
-        sizeRange.value = String(v);
-        applyTileSize(v);
-      }
-    }
+  // --- Do not touch slider UI on view switches ---
+  // Keep the user's slider position; only re-apply sizing.
+if (sizeRange) {
+  const v = Number(s2.tileSize ?? 160);
+  applyTileSize(v);
+}
 
     // Rendering is still stable...
     await render();

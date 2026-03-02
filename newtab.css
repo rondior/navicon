@@ -1023,11 +1023,13 @@ main{padding:18px}
   display: grid;
   place-items: center;
 
-  font-size: 12px;
+  /* Hide any literal button text; dots come from ::before */
+  font-size: 0;
   line-height: 1;
 
-  color: #000;           /* black dots */
-  opacity: 0.85;
+  /* Use theme tokens instead of hard black */
+  color: var(--menuBtnFg, currentColor) !important;
+  opacity: var(--menuBtnOpacity, .70);
 
   border-radius: 4px;
 
@@ -1035,8 +1037,13 @@ main{padding:18px}
   right: var(--sp-2) !important;
 }
 
+/* Make dots readable in compact mode */
+.groupSection.compact .tileMenuBtn::before{
+  font-size: 12px;
+}
+
 .groupSection.compact .tileMenuBtn:hover{
-  background: rgba(0,0,0,.10);
+  background: var(--tileMenuBtnHoverBg, rgba(0,0,0,.10));
   opacity: 1;
 }
 
