@@ -72,6 +72,36 @@
 
   --menuBtnBg: rgba(255,255,255,.06);
   --menuBtnBorder: rgba(255,255,255,.08);
+
+    /* =========================
+     Parity Tokens (defaults)
+     Ensures components have complete fallbacks
+  ========================= */
+
+  /* Segmented */
+  --segLabel: var(--text);
+  --segLabelMuted: var(--muted);
+  --segHoverText: var(--segLabel);
+
+  /* Tile menu surface */
+  --tileMenuBg: rgba(20,24,34,.94);
+  --tileMenuBorder: rgba(255,255,255,.14);
+  --tileMenuShadow: 0 14px 30px rgba(0,0,0,.45);
+  --tileMenuText: var(--text);
+  --tileMenuTextMuted: var(--muted);
+  --tileMenuItemHoverBg: rgba(255,255,255,.08);
+  --tileMenuDangerText: rgba(255,95,95,.95);
+  --tileMenuDangerHoverBg: rgba(255,95,95,.16);
+
+  /* Surface */
+  --surfaceText: var(--text);
+  --surfaceTextMuted: var(--muted);
+  --surfaceIcon: rgba(255,255,255,.90);
+
+  /* Folder hover polish (fallback) */
+  --folderHoverLift: -2px;
+  --folderHoverShadow: var(--shadow-2);
+  --folderHoverRing: 0 0 0 2px rgba(99,102,241,.22);
 }
 
 /* =========================
@@ -210,6 +240,73 @@ html[data-theme="apple"]{
   --accent: rgba(104,182,255,.95);  /* icy blue */
   --accent2: rgba(177,140,255,.90); /* soft violet */
 
+    /* =========================
+     Text
+  ========================= */
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.70);
+
+  --textPrimary: rgba(255,255,255,.92);
+  --textSecondary: rgba(255,255,255,.70);
+  --iconColor: rgba(255,255,255,.90);
+
+  /* =========================
+     Topbar / Controls
+  ========================= */
+  --topbarBg: var(--panel);
+  --topbarBorder: var(--stroke);
+  --topbarBtnBg: rgba(255,255,255,.10);
+  --topbarBtnBorder: rgba(255,255,255,.16);
+
+  --controlShadow: 0 2px 10px rgba(0,0,0,.18);
+  --controlShadowHover: 0 4px 14px rgba(0,0,0,.22);
+
+  /* =========================
+     Segmented Control
+  ========================= */
+  --segLabel: rgba(255,255,255,.92);
+  --segLabelMuted: rgba(255,255,255,.70);
+
+  --segText: var(--segLabelMuted);
+  --segHoverText: var(--segLabel);
+  --segActiveText: rgba(104,182,255,.95);
+
+  --segActiveBg: rgba(104,182,255,.18);
+  --segActiveBorder: rgba(104,182,255,.32);
+  --segActiveShadow: none;
+
+  /* =========================
+     Tile Menu Button (⋯)
+  ========================= */
+  --menuBtnBg: rgba(255,255,255,.08);
+  --menuBtnBorder: rgba(255,255,255,.14);
+  --menuBtnFg: rgba(255,255,255,.92);
+  --menuBtnOpacity: .60;
+  --tileMenuBtnHoverBg: rgba(255,255,255,.12);
+
+  /* =========================
+     Tile Menu Surface
+  ========================= */
+  --tileMenuText: rgba(255,255,255,.92);
+  --tileMenuTextMuted: rgba(255,255,255,.70);
+  --tileMenuItemHoverBg: rgba(255,255,255,.08);
+  --tileMenuDangerText: rgba(255,95,95,.95);
+  --tileMenuDangerHoverBg: rgba(255,95,95,.16);
+
+  /* =========================
+     Folder tiles + badges
+  ========================= */
+  --folderBadgeText: rgba(255,255,255,.88);
+  --folderBadgeBg: rgba(0,0,0,.28);
+  --folderBadgeBorder: rgba(255,255,255,.14);
+
+  /* =========================
+     Surface tokens
+  ========================= */
+  --surfaceText: rgba(255,255,255,.92);
+  --surfaceTextMuted: rgba(255,255,255,.70);
+  --surfaceIcon: rgba(255,255,255,.90);
+
   /* Apple elevation normalized to “subtle” (Google-like scale) */
   --shadow-lg: 0 10px 24px rgba(0,0,0,.22);
   --shadow-md: 0 6px 16px rgba(0,0,0,.16);
@@ -246,7 +343,6 @@ html[data-theme="apple"]{
   --tileMenuBg: rgba(20, 24, 34, .94);
   --tileMenuBorder: rgba(255,255,255,.14);
   --tileMenuShadow: 0 14px 30px rgba(0,0,0,.45);
-  --menuBtnFg: rgba(255,255,255,.92);
 }
 
 /* Warm Studio */
@@ -283,9 +379,9 @@ html[data-theme="warm"]{
   /* =========================
      Elevation
   ========================= */
-  --shadow-lg:0 20px 50px rgba(180,90,60,.35);
-  --shadow-md:0 12px 30px rgba(180,90,60,.28);
-  --shadow-sm:0 6px 18px rgba(180,90,60,.22);
+  --shadow-lg:0 10px 24px rgba(180,90,60,.20);
+  --shadow-md:0 6px 16px rgba(180,90,60,.16);
+  --shadow-sm:0 2px 6px rgba(180,90,60,.12);
 
   /* =========================
      Overlay / Buttons
@@ -382,6 +478,19 @@ html[data-theme="windows"]{
   --shadow-lg:0 6px 18px rgba(0,0,0,.12);
   --shadow-md:0 4px 10px rgba(0,0,0,.08);
   --shadow-sm:0 2px 4px rgba(0,0,0,.06);
+
+    /* =========================
+     Topbar / Controls
+  ========================= */
+  --topbarBg:#ffffff;
+  --topbarBorder:#c7d1df;
+  --topbarShadow:0 4px 12px rgba(17,24,39,.10);
+
+  --topbarBtnBg:rgba(255,255,255,.85);
+  --topbarBtnBorder:rgba(17,24,39,.14);
+
+  --controlShadow:0 2px 6px rgba(17,24,39,.12);
+  --controlShadowHover:0 4px 10px rgba(17,24,39,.14);
 
   /* =========================
      Overlay / Buttons
