@@ -467,6 +467,13 @@ html[data-theme="warm"]{
   --folderPreviewBg:rgba(0,0,0,.10);
   --folderPreviewStroke:rgba(0,0,0,.10);
 
+  /* =========================
+     Folder badge (count pill)
+  ========================= */
+  --folderBadgeText: #2a1b14;
+  --folderBadgeBg: rgba(0,0,0,.10);
+  --folderBadgeBorder: rgba(0,0,0,.12);
+
   /* Folder hover */
   --folderHoverLift:-2px;
   --folderHoverShadow:0 14px 28px rgba(180,90,60,.28);
@@ -589,6 +596,13 @@ html[data-theme="windows"]{
   --folderTitleColor:#111827;
   --folderPreviewBg:rgba(0,0,0,.08);
   --folderPreviewStroke:rgba(0,0,0,.10);
+
+  /* =========================
+     Folder badge (count pill)
+  ========================= */
+  --folderBadgeText: #111827;
+  --folderBadgeBg: rgba(0,0,0,.06);
+  --folderBadgeBorder: rgba(0,0,0,.10);
 
   /* Folder hover */
   --folderHoverLift:-2px;
@@ -1207,12 +1221,6 @@ main{padding:18px}
 
 /* Collapsible sections */
 .groupHeader{ cursor: pointer; }
-.groupSection.collapsed .groupGrid{ display:none; }
-.groupChevron{
-  color: var(--muted);
-  font-size: 12px;
-  margin-left: 10px;
-}
 
 .groupHeaderRight{
   display:flex;
@@ -1496,11 +1504,6 @@ border-bottom: 1px solid var(--stroke);
 .groupCount{
   font-size: 13px;
   font-weight: 600;
-  color: var(--muted);
-}
-
-.groupChevron{
-  font-size: 14px;
   color: var(--muted);
 }
 
