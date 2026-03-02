@@ -261,18 +261,6 @@ async function repairGroupsOnce() {
   // Mark migration complete
   s.__repairedGroupsV1 = true;
 
-  // Clean collapsedGroups to only include keys that still exist
-  if (s.collapsedGroups && typeof s.collapsedGroups === "object") {
-    const allowed = new Set((s.groups || []).map(x => String(x).trim()).filter(Boolean));
-    allowed.add("Other");
-
-    const cg = {};
-    for (const k of Object.keys(s.collapsedGroups)) {
-      if (allowed.has(k) && s.collapsedGroups[k]) cg[k] = true;
-    }
-    s.collapsedGroups = cg;
-  }
-
   await saveSettings(s);
 }
 
@@ -1024,59 +1012,10 @@ function makeSection(name, items) {
   const right = document.createElement("div");
   right.className = "groupHeaderRight";
 
-  const chevron = document.createElement("div");
-  chevron.className = "groupChevron";
-  chevron.textContent = "▾";
-
+  // Header assembly (no chevron, no collapse toggle)
   right.appendChild(count);
-  right.appendChild(chevron);
-
   header.appendChild(title);
   header.appendChild(right);
-
-  header.addEventListener("click", async (e) => {
-    // Don't interfere with drag/drop
-    e.preventDefault();
-
-    const s = await loadSettings();
-    s.collapsedGroups = s.collapsedGroups || {};
-    const next = !s.collapsedGroups[name];
-    s.collapsedGroups[name] = next;
-    await saveSettings(s);
-
-    section.classList.toggle("collapsed", next);
-    const chev = header.querySelector(".groupChevron");
-    if (chev) chev.textContent = next ? "▸" : "▾";
-  });
-
-  // Allow dropping onto the header (auto-expands if collapsed)
-  header.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    section.classList.remove("collapsed");
-    const chev = header.querySelector(".groupChevron");
-    if (chev) chev.textContent = "▾";
-  });
-
-  header.addEventListener("drop", async (e) => {
-    e.preventDefault();
-
-    // Expand and persist expanded state
-    section.classList.remove("collapsed");
-    const chev = header.querySelector(".groupChevron");
-    if (chev) chev.textContent = "▾";
-
-    const id = e.dataTransfer ? e.dataTransfer.getData("text/plain") : "";
-    if (!id) return;
-
-    const s = await loadSettings();
-    s.collapsedGroups = s.collapsedGroups || {};
-    s.collapsedGroups[name] = false;
-    await saveSettings(s);
-
-    await setTileGroup(id, name);
-    await persistOrderFromDOM();
-    await render();
-  });
 
   const ggrid = document.createElement("div");
   ggrid.className = "groupGrid";
@@ -1102,7 +1041,6 @@ function makeSection(name, items) {
     const id = e.dataTransfer ? e.dataTransfer.getData("text/plain") : "";
     if (!id) return;
     await setTileGroup(id, name);
-    // after assigning group, persist order as it appears now
     try { await persistOrderFromDOM(); } catch (err) { console.error("[TILE RENDER ERROR]", err); }
     render();
   });
@@ -1110,51 +1048,47 @@ function makeSection(name, items) {
   // --- Show more / Show less (per-group) ---
   let expanded = false;
 
-  // button in header right side (next to count)
   const moreBtn = document.createElement("button");
   moreBtn.className = "groupMoreBtn";
   moreBtn.type = "button";
-  const applyExpandedUI = () => {
-  const isSelection = !!window.selectionMode;
 
-  // In selection mode, always show all tiles
-  const effectiveExpanded = isSelection ? true : expanded;
+  const applyExpandedUI = () => {
+    const isSelection = !!window.selectionMode;
+
+    // In selection mode, always show all tiles
+    const effectiveExpanded = isSelection ? true : expanded;
 
     let previewLimit = PREVIEW_LIMIT;
 
-  // Calculate full-row preview based on current column count
-  if (ggrid) {
-    const gridStyles = getComputedStyle(ggrid);
-    const columns = gridStyles.gridTemplateColumns.split(" ").length || 1;
-    previewLimit = columns * 3; // show 3 full rows
-  }
+    // Calculate full-row preview based on current column count
+    if (ggrid) {
+      const gridStyles = getComputedStyle(ggrid);
+      const columns = gridStyles.gridTemplateColumns.split(" ").length || 1;
+      previewLimit = columns * 3; // show 3 full rows
+    }
 
-  const visibleCount = effectiveExpanded
-    ? items.length
-    : Math.min(items.length, previewLimit);
+    const visibleCount = effectiveExpanded
+      ? items.length
+      : Math.min(items.length, previewLimit);
 
-  const hidden = Math.max(0, items.length - visibleCount);
-
-  // Update button text + visibility
-  if (!isSelection && items.length > PREVIEW_LIMIT) {
-    moreBtn.style.display = "inline-flex";
-    moreBtn.textContent = effectiveExpanded ? "Collapse" : `Show all (${items.length})`;
-    moreBtn.classList.toggle("isCollapsedLabel", !effectiveExpanded);
-  } else {
-    moreBtn.style.display = "none";
-  }
+    // Update button text + visibility
+    if (!isSelection && items.length > PREVIEW_LIMIT) {
+      moreBtn.style.display = "inline-flex";
+      moreBtn.textContent = effectiveExpanded ? "Show less" : `Show all (${items.length})`;
+      moreBtn.classList.toggle("isCollapsedLabel", !effectiveExpanded);
+    } else {
+      moreBtn.style.display = "none";
+    }
 
     // Rebuild tiles
-  ggrid.innerHTML = "";
-  items.slice(0, visibleCount).forEach(link => {
-    ggrid.appendChild(renderTile(link));
-  });
-
-  // (Optional) you were computing hidden earlier; keep it if you want future UX hooks
-};
+    ggrid.innerHTML = "";
+    items.slice(0, visibleCount).forEach(link => {
+      ggrid.appendChild(renderTile(link));
+    });
+  };
 
   moreBtn.addEventListener("click", async (e) => {
-    e.stopPropagation(); // don't toggle collapse
+    e.stopPropagation(); // don't toggle anything else
     expanded = !expanded;
 
     const s = await loadSettings();
@@ -1166,8 +1100,8 @@ function makeSection(name, items) {
     applyGroupDensitySizing();
   });
 
-  // Insert button before chevron (so count | show more | chevron)
-  right.insertBefore(moreBtn, chevron);
+  // Put Show all/Show less next to the count
+  right.appendChild(moreBtn);
 
   // Render immediately (prevents empty flash)
   applyExpandedUI();
@@ -1199,36 +1133,17 @@ function makeSection(name, items) {
 
     const dt = e.dataTransfer;
     const id = dt
-  ? (dt.getData("application/x-navicon-id") ||
-     dt.getData("application/x-betterdial-id") ||
-     dt.getData("text/plain"))
-  : "";
+      ? (dt.getData("application/x-navicon-id") ||
+         dt.getData("application/x-betterdial-id") ||
+         dt.getData("text/plain"))
+      : "";
     if (!id) return;
-
-    // Expand and persist expanded state
-    section.classList.remove("collapsed");
-    const chev = header.querySelector(".groupChevron");
-    if (chev) chev.textContent = "▾";
-
-    const s = await loadSettings();
-    s.collapsedGroups = s.collapsedGroups || {};
-    s.collapsedGroups[name] = false;
-    await saveSettings(s);
 
     await setTileGroup(id, name);
     await persistOrderFromDOM();
     await render();
   });
   // END SECTION DROP TARGET
-
-  // Apply collapsed state from settings
-  (async () => {
-    const s = await loadSettings();
-    const collapsed = !!(s.collapsedGroups && s.collapsedGroups[name]);
-    section.classList.toggle("collapsed", collapsed);
-    const chev = header.querySelector(".groupChevron");
-    if (chev) chev.textContent = collapsed ? "▸" : "▾";
-  })();
 
   return section;
 }
