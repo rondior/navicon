@@ -102,6 +102,15 @@
   --folderHoverLift: -2px;
   --folderHoverShadow: var(--shadow-2);
   --folderHoverRing: 0 0 0 2px rgba(99,102,241,.22);
+
+  /* =========================
+     Modal Tokens (defaults)
+  ========================= */
+  --modalBg: var(--panel);
+  --modalText: var(--text);
+  --modalBorder: var(--stroke);
+  --modalDivider: color-mix(in oklab, var(--stroke) 70%, transparent);
+  --modalShadow: var(--shadow-lg);
 }
 
 /* =========================
@@ -152,6 +161,8 @@ html[data-theme="google"]{
   --shadow-lg:0 10px 24px rgba(17,24,39,.12);
   --shadow-md:0 6px 16px rgba(17,24,39,.10);
   --shadow-sm:0 2px 6px rgba(17,24,39,.08);
+
+  --modalShadow: 0 16px 40px rgba(17,24,39,.20);
 
   /* =========================
      Topbar / Controls
@@ -227,7 +238,7 @@ html[data-theme="google"]{
   --surfaceTextMuted:#5f6368;
   --surfaceIcon:#202124;
 
-    /* =========================
+  /* =========================
      Dialog Tokens
   ========================= */
   --dialogBg: rgba(255,255,255,.96);
@@ -252,7 +263,7 @@ html[data-theme="apple"]{
   --accent: rgba(104,182,255,.95);  /* icy blue */
   --accent2: rgba(177,140,255,.90); /* soft violet */
 
-    /* =========================
+  /* =========================
      Text
   ========================= */
   --text: rgba(255,255,255,.92);
@@ -332,6 +343,8 @@ html[data-theme="apple"]{
   --shadow-2: 0 6px 18px rgba(0,0,0,.16);
   --shadow-3: 0 10px 26px rgba(0,0,0,.18);
 
+  --modalShadow: 0 18px 48px rgba(0,0,0,.35);
+
   --r-lg: 18px;
   --r-xl: 22px;
 
@@ -406,6 +419,8 @@ html[data-theme="warm"]{
   --shadow-lg:0 10px 24px rgba(180,90,60,.20);
   --shadow-md:0 6px 16px rgba(180,90,60,.16);
   --shadow-sm:0 2px 6px rgba(180,90,60,.12);
+
+  --modalShadow: 0 18px 42px rgba(180,90,60,.25);
 
   /* =========================
      Overlay / Buttons
@@ -514,6 +529,8 @@ html[data-theme="windows"]{
   --shadow-lg:0 6px 18px rgba(0,0,0,.12);
   --shadow-md:0 4px 10px rgba(0,0,0,.08);
   --shadow-sm:0 2px 4px rgba(0,0,0,.06);
+
+  --modalShadow: 0 12px 28px rgba(0,0,0,.18);
 
     /* =========================
      Topbar / Controls
@@ -2378,25 +2395,26 @@ dialog.dialog .tileMenuBtn{
   width: min(920px, calc(100vw - 48px));
   max-height: min(78vh, 820px);
 
-  background: var(--panel);
-  color: var(--text);
-  border: 1px solid var(--stroke);
+  background: var(--modalBg, var(--panel));
+  color: var(--modalText, var(--text));
+  border: 1px solid var(--modalBorder, var(--stroke));
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--modalShadow, var(--shadow-lg));
   z-index: 9999;
 
   opacity: 0;
   pointer-events: none;
 
-  display:flex;
+  display: flex;
   flex-direction: column;
 
   transition:
-  opacity var(--dur-ui) var(--ease-ui),
-  transform var(--dur-ui) var(--ease-ui),
-  filter var(--dur-ui) var(--ease-ui);
-     filter: blur(2px);
+    opacity var(--dur-ui) var(--ease-ui),
+    transform var(--dur-ui) var(--ease-ui),
+    filter var(--dur-ui) var(--ease-ui);
+
+  filter: blur(2px);
 }
 
 .folderModal.open{
@@ -2431,13 +2449,13 @@ dialog.dialog .tileMenuBtn{
   justify-content: space-between;
   gap: 12px;
   padding: 14px 14px 10px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid var(--modalDivider, color-mix(in oklab, var(--stroke) 70%, transparent));
 }
 
 .folderModalTitle{
   font-size: 15px;
   font-weight: 650;
-  color: #fff;
+  color: var(--surfaceText, var(--modalText));
   overflow:hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
