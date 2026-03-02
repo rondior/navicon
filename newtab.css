@@ -499,134 +499,147 @@ html[data-theme="warm"]{
   --dialogBtnText: #2a1b14;
 }
 
-/* Windows Original */
 html[data-theme="windows"]{
 
   /* =========================
-     Background
+     Retro Microsoft (Classic)
+     Goal: unmistakably different from Google
+     - crisper borders
+     - tighter radii
+     - stronger inner wells
+     - classic blue accent
+     - less "glass", more "desktop"
   ========================= */
-  --bg1:#e9eef5;
-  --bg2:#d6dee9;
 
   /* =========================
-     Panels / Surfaces
+     Background (cool grey-blue)
   ========================= */
-  --panel:#ffffff;
-  --stroke:#c7d1df;
+  --bg1:#d8e0ea;   /* desktop */
+  --bg2:#c7d2df;   /* vignette */
 
   /* =========================
-     Text
+     Panels / Surfaces (classic card look)
   ========================= */
-  --text:#111827;
-  --muted:#4b5563;
-
-  --textPrimary:#111827;
-  --textSecondary:#4b5563;
-  --iconColor:#111827;
+  --panel:#eef3f8;                 /* not pure white */
+  --stroke:#7f93ab;                /* visible border */
+  --blur: 0px;                     /* kill glass feel */
 
   /* =========================
-     Accent
+     Text (slightly softer than pure black)
   ========================= */
-  --accent:#2b579a;
-  --accent2:#1f3f73;
+  --text:#0b1220;
+  --muted:#334155;
+
+  --textPrimary:#0b1220;
+  --textSecondary:#334155;
+  --iconColor:#0b1220;
 
   /* =========================
-     Elevation
+     Accent (classic Windows blue)
   ========================= */
-  --shadow-lg:0 6px 18px rgba(0,0,0,.12);
-  --shadow-md:0 4px 10px rgba(0,0,0,.08);
-  --shadow-sm:0 2px 4px rgba(0,0,0,.06);
+  --accent:#0a4ea3;
+  --accent2:#083a78;
 
-  --modalShadow: 0 12px 28px rgba(0,0,0,.18);
-
-    /* =========================
-     Topbar / Controls
+  /* =========================
+     Elevation (sharper, smaller blur)
+     Classic UI = less float, more structure
   ========================= */
-  --topbarBg:#ffffff;
-  --topbarBorder:#c7d1df;
-  --topbarShadow:0 4px 12px rgba(17,24,39,.10);
+  --shadow-lg:0 10px 18px rgba(0,0,0,.18);
+  --shadow-md:0 6px 10px rgba(0,0,0,.14);
+  --shadow-sm:0 2px 4px rgba(0,0,0,.10);
 
-  --topbarBtnBg:rgba(255,255,255,.85);
-  --topbarBtnBorder:rgba(17,24,39,.14);
+  --modalShadow: 0 16px 26px rgba(0,0,0,.26);
 
-  --controlShadow:0 2px 6px rgba(17,24,39,.12);
-  --controlShadowHover:0 4px 10px rgba(17,24,39,.14);
+  /* =========================
+     Topbar / Controls (classic header feel)
+  ========================= */
+  --topbarBg: linear-gradient(to bottom, #f7fbff 0%, #e6eef7 100%);
+  --topbarBorder:#6f86a1;
+  --topbarShadow:0 2px 0 rgba(255,255,255,.65), 0 6px 14px rgba(0,0,0,.12);
+
+  --topbarBtnBg: linear-gradient(to bottom, #ffffff 0%, #e9f0f8 100%);
+  --topbarBtnBorder:#6f86a1;
+
+  --controlShadow:0 1px 0 rgba(255,255,255,.75), 0 2px 6px rgba(0,0,0,.12);
+  --controlShadowHover:0 1px 0 rgba(255,255,255,.75), 0 4px 10px rgba(0,0,0,.16);
 
   /* =========================
      Overlay / Buttons
   ========================= */
-  --overlayBg:rgba(0,0,0,.20);
-  --tileMenuBtnHoverBg:rgba(0,0,0,.10);
+  --overlayBg:rgba(11,18,32,.28);
+  --tileMenuBtnHoverBg:rgba(10,78,163,.14);
 
   /* =========================
-     Segmented Control
+     Segmented Control (classic tabs)
   ========================= */
-  --segLabel:#111827;
-  --segLabelMuted:#4b5563;
+  --segLabel:#0b1220;
+  --segLabelMuted:#334155;
 
   --segText:var(--segLabelMuted);
   --segHoverText:var(--segLabel);
-  --segActiveText:var(--accent);
+  --segActiveText:#ffffff;
 
-  --segActiveBg:rgba(43,87,154,.16);
-  --segActiveBorder:rgba(43,87,154,.35);
-  --segActiveShadow:none;
-
-  /* =========================
-     Tile Menu Surface
-  ========================= */
-  --tileMenuBg:rgba(255,255,255,.96);
-  --tileMenuBorder:rgba(17,24,39,.14);
-  --tileMenuShadow:0 14px 30px rgba(17,24,39,.18);
-
-  --tileMenuText:#111827;
-  --tileMenuTextMuted:#4b5563;
-
-  --tileMenuItemHoverBg:rgba(17,24,39,.06);
-  --tileMenuDangerText:#d13438;
-  --tileMenuDangerHoverBg:rgba(209,52,56,.14);
+  --segActiveBg:linear-gradient(to bottom, #2b74d6 0%, #0a4ea3 100%);
+  --segActiveBorder:#083a78;
+  --segActiveShadow:0 1px 0 rgba(255,255,255,.35);
 
   /* =========================
-     Folder Tiles
+     Tile Menu Surface (classic menu)
   ========================= */
-  --folderTileBg:oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
-  --folderTileBorder:#c7d1df;
-  --folderTileShadow:0 4px 12px rgba(0,0,0,.12);
+  --tileMenuBg:linear-gradient(to bottom, #f9fbff 0%, #e7eef7 100%);
+  --tileMenuBorder:#6f86a1;
+  --tileMenuShadow:0 10px 18px rgba(0,0,0,.22);
 
-  --folderTitleColor:#111827;
-  --folderPreviewBg:rgba(0,0,0,.08);
-  --folderPreviewStroke:rgba(0,0,0,.10);
+  --tileMenuText:#0b1220;
+  --tileMenuTextMuted:#334155;
+
+  --tileMenuItemHoverBg:rgba(10,78,163,.12);
+  --tileMenuDangerText:#b91c1c;
+  --tileMenuDangerHoverBg:rgba(185,28,28,.14);
+
+  /* =========================
+     Folder Tiles (panel-in-panel)
+  ========================= */
+  --folderTileBg: linear-gradient(to bottom, #f7fbff 0%, #e6edf6 100%);
+  --folderTileBorder:#6f86a1;
+  --folderTileShadow:0 6px 12px rgba(0,0,0,.16);
+
+  --folderTitleColor:#0b1220;
+
+  /* Inner well behind tiles (stronger + cooler) */
+  --folderPreviewBg:rgba(10,20,36,.10);
+  --folderPreviewStroke:rgba(10,20,36,.18);
 
   /* =========================
      Folder badge (count pill)
   ========================= */
-  --folderBadgeText: #111827;
-  --folderBadgeBg: rgba(0,0,0,.06);
-  --folderBadgeBorder: rgba(0,0,0,.10);
+  --folderBadgeText:#0b1220;
+  --folderBadgeBg: linear-gradient(to bottom, #ffffff 0%, #e8eef7 100%);
+  --folderBadgeBorder:#6f86a1;
 
-  /* Folder hover */
-  --folderHoverLift:-2px;
-  --folderHoverShadow:0 10px 22px rgba(17,24,39,.16);
-  --folderHoverRing:0 0 0 2px rgba(43,87,154,.22);
+  /* Folder hover (classic blue ring) */
+  --folderHoverLift:-1px;
+  --folderHoverShadow:0 10px 18px rgba(0,0,0,.20);
+  --folderHoverRing:0 0 0 2px rgba(10,78,163,.35);
 
   /* =========================
      Light surface text
   ========================= */
-  --surfaceText:#111827;
-  --surfaceTextMuted:#4b5563;
-  --surfaceIcon:#111827;
+  --surfaceText:#0b1220;
+  --surfaceTextMuted:#334155;
+  --surfaceIcon:#0b1220;
 
-    /* =========================
-     Dialog Tokens
+  /* =========================
+     Dialog Tokens (match classic)
   ========================= */
-  --dialogBg: rgba(255,255,255,.96);
-  --dialogText: #111827;
+  --dialogBg: linear-gradient(to bottom, #f9fbff 0%, #e7eef7 100%);
+  --dialogText: #0b1220;
 
-  --dialogFieldBg: rgba(255,255,255,.92);
-  --dialogFieldText: #111827;
-  --dialogFieldBorder: rgba(17,24,39,.22);
+  --dialogFieldBg: #ffffff;
+  --dialogFieldText: #0b1220;
+  --dialogFieldBorder: rgba(111,134,161,.75);
 
-  --dialogBtnText: #111827;
+  --dialogBtnText: #0b1220;
 }
 
 /* =========================
@@ -671,6 +684,42 @@ dialog.dialog > form.form select{
 /* Buttons inside dialog */
 dialog.dialog > form.form .btn{
   color: var(--dialogBtnText) !important;
+}
+
+/* =========================
+   WINDOWS (RETRO) — GEOMETRY OVERRIDES
+   Purpose: make Windows unmistakably not-Google:
+   - tighter corners
+   - crisp 1px borders
+   - less “soft glass” feeling
+========================= */
+html[data-theme="windows"]{
+  /* tighter radii */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 12px;
+}
+
+html[data-theme="windows"] .groupSection,
+html[data-theme="windows"] .tile,
+html[data-theme="windows"] .folderTile,
+html[data-theme="windows"] .tileMenu,
+html[data-theme="windows"] dialog.dialog > form.form{
+  border: 1px solid var(--stroke) !important;
+  border-radius: var(--r-md) !important;
+}
+
+/* section "inner well" (the tile container inside a section) */
+html[data-theme="windows"] .groupSection .groupGrid{
+  border: 1px solid color-mix(in oklab, var(--stroke) 80%, #000 0%) !important;
+  border-radius: var(--r-md) !important;
+}
+
+/* menu button hover should feel “system-y” */
+html[data-theme="windows"] .tileMenuBtn:hover{
+  outline: 1px solid rgba(10,78,163,.35);
+  outline-offset: 2px;
 }
 
 *{box-sizing:border-box}
