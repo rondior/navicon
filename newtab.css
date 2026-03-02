@@ -74,6 +74,12 @@
   --menuBtnBorder: rgba(255,255,255,.08);
 }
 
+/* =========================
+   THEMES (VARS ONLY)
+   Rule: themes define CSS variables only.
+   No layout. No sizing. No component styling.
+========================= */
+
 /* Google Style (DEFAULT) */
 html[data-theme="google"]{
 
@@ -95,6 +101,11 @@ html[data-theme="google"]{
   --text:#111827;
   --muted:#6b7280;
 
+  /* Optional “header text tokens” used by some light UI pieces */
+  --textPrimary: #202124;
+  --textSecondary: #5f6368;
+  --iconColor: #202124;
+
   /* =========================
      Accent
   ========================= */
@@ -108,15 +119,21 @@ html[data-theme="google"]{
   --shadow-2: 0 10px 24px rgba(17,24,39,.12);
 
   /* =========================
-   Shadow Scale Overrides
-   (Stops giant dark-theme shadows)
- ========================= */
+     Shadow Scale Overrides
+     (Stops giant dark-theme shadows)
+  ========================= */
   --shadow-lg: 0 10px 24px rgba(17,24,39,.12);
   --shadow-md: 0 6px 16px rgba(17,24,39,.10);
   --shadow-sm: 0 2px 6px rgba(17,24,39,.08);
 
   /* Topbar + controls (prevents “giant blob” shadows) */
+  --topbarBg: rgba(255,255,255,.78);
+  --topbarBorder: rgba(17,24,39,.10);
   --topbarShadow: 0 4px 12px rgba(17,24,39,.08);
+
+  --topbarBtnBg: rgba(255,255,255,.70);
+  --topbarBtnBorder: rgba(17,24,39,.12);
+
   --controlShadow: 0 2px 6px rgba(17,24,39,.10);
   --controlShadowHover: 0 4px 10px rgba(17,24,39,.12);
 
@@ -126,6 +143,7 @@ html[data-theme="google"]{
   --segText: #5f6368;
   --segActiveText: #1a73e8;
   --segActiveBg: rgba(26,115,232,.12);
+  --segActiveBorder: rgba(26,115,232,.35);
   --segActiveShadow: none;
 
   /* =========================
@@ -136,6 +154,11 @@ html[data-theme="google"]{
   --menuBtnFg: rgba(17,24,39,.70);
   --menuBtnOpacity: .55;
   --tileMenuBtnHoverBg: rgba(17,24,39,.10);
+
+    /* Tile menu dropdown surface */
+  --tileMenuBg: rgba(255,255,255,.96);
+  --tileMenuBorder: rgba(17,24,39,.14);
+  --tileMenuShadow: 0 14px 30px rgba(17,24,39,.18);
 
   /* =========================
      Folder Tiles
@@ -155,18 +178,44 @@ html[data-theme="apple"]{
   --bg1:#070a12;
   --bg2:#0b1020;
 
-  --panel: rgba(255,255,255,.10);
+  --panel: rgba(255,255,255,.12);
   --stroke: rgba(255,255,255,.18);
   --blur: 26px;
 
   --accent: rgba(104,182,255,.95);  /* icy blue */
   --accent2: rgba(177,140,255,.90); /* soft violet */
 
-  --shadow-lg: 0 34px 110px rgba(0,0,0,.62);
-  --shadow-md: 0 18px 60px rgba(0,0,0,.46);
-  --shadow-sm: 0 10px 26px rgba(0,0,0,.34);
+  /* Apple elevation normalized to “subtle” (Google-like scale) */
+  --shadow-lg: 0 10px 24px rgba(0,0,0,.22);
+  --shadow-md: 0 6px 16px rgba(0,0,0,.16);
+  --shadow-sm: 0 3px 8px  rgba(0,0,0,.14);
 
-  --panel: rgba(255,255,255,.12);
+  /* Topbar/control elevation should never inherit giant dark shadows */
+  --topbarShadow: 0 2px 10px rgba(0,0,0,.16);
+
+  /* Keep these aligned if referenced elsewhere */
+  --shadow-1: 0 3px 10px rgba(0,0,0,.14);
+  --shadow-2: 0 6px 18px rgba(0,0,0,.16);
+  --shadow-3: 0 10px 26px rgba(0,0,0,.18);
+
+  --r-lg: 18px;
+  --r-xl: 22px;
+
+  /* Folder visuals (theme vars only) */
+  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.111843);
+  --folderTileBorder: rgba(255, 255, 255, 0.12);
+  --folderTileShadow: rgba(0, 0, 0, 0.16) 0px 8px 22px 0px;
+  --brandLogoFilter: brightness(0) invert(1);
+
+  --folderTitleColor: rgba(255,255,255,0.92);
+
+  --folderPreviewBg: rgba(255,255,255,0.16);
+  --folderPreviewStroke: rgba(255,255,255,0.14);
+
+    /* Tile menu dropdown surface */
+  --tileMenuBg: rgba(20, 24, 34, .94);
+  --tileMenuBorder: rgba(255,255,255,.14);
+  --tileMenuShadow: 0 14px 30px rgba(0,0,0,.45);
 }
 
 /* Warm Studio */
@@ -188,6 +237,24 @@ html[data-theme="warm"]{
   --shadow-lg: 0 20px 50px rgba(180,90,60,.35);
   --shadow-md: 0 12px 30px rgba(180,90,60,.28);
   --shadow-sm: 0 6px 18px rgba(180,90,60,.22);
+
+  /* Overlay + hover tokens (migrated from legacy bottom blocks) */
+  --overlayBg: rgba(0,0,0,0.20);
+  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
+
+  /* Folder visuals (theme vars only) */
+  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
+  --folderTileBorder: rgba(255, 140, 100, 0.35);
+  --folderTileShadow: rgba(0, 0, 0, 0.14) 0px 6px 18px 0px;
+
+  --folderTitleColor: rgb(42, 27, 20);
+  --folderPreviewBg: rgba(0,0,0,0.10);
+  --folderPreviewStroke: rgba(0,0,0,0.10);
+
+    /* Tile menu dropdown surface */
+  --tileMenuBg: rgba(255,255,255,.94);
+  --tileMenuBorder: rgba(17,24,39,.14);
+  --tileMenuShadow: 0 14px 30px rgba(17,24,39,.20);
 }
 
 /* ===== Windows Original ===== */
@@ -209,43 +276,66 @@ html[data-theme="windows"]{
   --shadow-lg: 0 6px 18px rgba(0,0,0,.12);
   --shadow-md: 0 4px 10px rgba(0,0,0,.08);
   --shadow-sm: 0 2px 4px rgba(0,0,0,.06);
+
+  /* Overlay + hover tokens (migrated from legacy bottom blocks) */
+  --overlayBg: rgba(0,0,0,0.20);
+  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
+
+  /* Folder visuals (theme vars only) */
+  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
+  --folderTileBorder: rgb(199, 209, 223);
+  --folderTileShadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px;
+
+  --folderTitleColor: rgb(17, 24, 39);
+  --folderPreviewBg: rgba(0,0,0,0.08);
+  --folderPreviewStroke: rgba(0,0,0,0.10);
+
+    /* Tile menu dropdown surface */
+  --tileMenuBg: rgba(255,255,255,.96);
+  --tileMenuBorder: rgba(17,24,39,.14);
+  --tileMenuShadow: 0 14px 30px rgba(17,24,39,.18);
 }
 
 /* =========================
-   THEME: WINDOWS ORIGINAL
-   Crisper, flatter, minimal blur
+   THEME DIALOG OVERRIDES (COMPONENT-SCOPED)
+   Keeps dialogs readable across themes.
+   Note: no :root[data-theme=...] selectors (architecture)
 ========================= */
-:root[data-theme="windows"]{
-  --blur: 8px;
 
-  /* Sharper geometry */
-  --r-lg: 12px;
-  --r-xl: 16px;
-
-  /* Flatter elevation */
-  --shadow-1: 0 4px 12px rgba(0,0,0,.12);
-  --shadow-2: 0 8px 18px rgba(0,0,0,.14);
-  --shadow-3: 0 12px 26px rgba(0,0,0,.16);
-
-  /* Crisper stroke */
-  --stroke: #c7d1df;
+/* Google: readable dialog surface + text */
+html[data-theme="google"] dialog.dialog > form.form{
+  background: rgba(255,255,255,.96) !important;
+  color: #111827 !important;
+}
+html[data-theme="google"] dialog.dialog > form.form *{
+  color: #111827 !important;
 }
 
-/* =========================
-   THEME: APPLE GLASS
-   Softer, more blur, premium depth
-========================= */
-:root[data-theme="apple"]{
-  --blur: 26px;
+/* Visible input borders in light themes (Google / Windows / Warm) */
+html[data-theme="google"] dialog.dialog > form.form input,
+html[data-theme="google"] dialog.dialog > form.form select,
+html[data-theme="windows"] dialog.dialog > form.form input,
+html[data-theme="windows"] dialog.dialog > form.form select,
+html[data-theme="warm"] dialog.dialog > form.form input,
+html[data-theme="warm"] dialog.dialog > form.form select{
+  border: 1px solid rgba(17,24,39,.22) !important;
+  background: rgba(255,255,255,.92) !important;
+}
 
-  --r-lg: 18px;
-  --r-xl: 22px;
-
-  --shadow-1: 0 8px 22px rgba(0,0,0,.16);
-  --shadow-2: 0 14px 34px rgba(0,0,0,.18);
-  --shadow-3: 0 22px 48px rgba(0,0,0,.20);
-
-  --stroke: rgba(255,255,255,.12);
+/* Apple Glass: force readable dialog surface + controls */
+html[data-theme="apple"] dialog.dialog > form.form{
+  background: rgba(255,255,255,.92) !important;
+  color: #111111 !important;
+}
+html[data-theme="apple"] dialog.dialog > form.form *{
+  color: inherit !important;
+}
+html[data-theme="apple"] dialog.dialog > form.form .btn{
+  color: #111111 !important;
+}
+html[data-theme="apple"] dialog.dialog > form.form input{
+  color: #111111 !important;
+  background: rgba(255,255,255,.95) !important;
 }
 
 *{box-sizing:border-box}
@@ -1285,9 +1375,6 @@ body > .tileMenu.open{
     background: rgba(255,255,255,.06);
     border: 1px solid var(--stroke);
   }
-  .tile:hover{
-    border-color: var(--accent);
-  }
 
   .menu{
     background: var(--panel);
@@ -1547,54 +1634,6 @@ dialog.dialog > form.form {
   color: #111;
 }
 
-/* =========================
-   GOOGLE THEME — Dialog Contrast Fix
-========================= */
-html[data-theme="google"] dialog.dialog > form.form,
-:root[data-theme="google"] dialog.dialog > form.form {
-  background: rgba(255,255,255,.96) !important;
-  color: #111827 !important;
-}
-
-html[data-theme="google"] dialog.dialog > form.form * ,
-:root[data-theme="google"] dialog.dialog > form.form * {
-  color: #111827 !important;
-}
-
-/* Visible input borders in light themes (Google / Windows / Warm) */
-html[data-theme="google"] dialog.dialog > form.form input,
-html[data-theme="google"] dialog.dialog > form.form select,
-html[data-theme="windows"] dialog.dialog > form.form input,
-html[data-theme="windows"] dialog.dialog > form.form select,
-html[data-theme="warm"] dialog.dialog > form.form input,
-html[data-theme="warm"] dialog.dialog > form.form select{
-  border: 1px solid rgba(17,24,39,.22) !important;
-  background: rgba(255,255,255,.92) !important;
-}
-
-/* Apple Glass override: force readable text/controls inside dialogs */
-html[data-theme="apple"] dialog.dialog > form.form,
-:root[data-theme="apple"] dialog.dialog > form.form {
-  background: rgba(255, 255, 255, 0.92);
-  color: #111111;
-}
-
-html[data-theme="apple"] dialog.dialog > form.form * ,
-:root[data-theme="apple"] dialog.dialog > form.form * {
-  color: inherit;
-}
-
-html[data-theme="apple"] dialog.dialog > form.form .btn,
-:root[data-theme="apple"] dialog.dialog > form.form .btn {
-  color: #111111;
-}
-
-html[data-theme="apple"] dialog.dialog > form.form input,
-:root[data-theme="apple"] dialog.dialog > form.form input {
-  color: #111111;
-  background: rgba(255, 255, 255, 0.95);
-}
-
 /* ===== Add Link dialog polish (minimal + clean) ===== */
 #addDialog > form.form h2{
   font-size: 18px;
@@ -1653,6 +1692,8 @@ html[data-theme="apple"] dialog.dialog > form.form input,
 .tile{
   position: relative;
   text-decoration: none;
+  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+  will-change: transform;
 }
 
 .tile .name,
@@ -1665,28 +1706,21 @@ html[data-theme="apple"] dialog.dialog > form.form input,
   text-decoration: none !important;
 }
 
-/* ===== Force tile lift on hover (all themes) ===== */
-.tile{
-  position: relative;
-  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
-  will-change: transform;
-}
-
 .tile:hover{
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(17,24,39,.10);
 }
 
 /* ===== Tile menu: compact + readable ===== */
+/* ===== Tile menu: compact + readable (variable-driven) ===== */
 .tileMenu{
-  /* keep whatever JS does; just style it cleanly */
   min-width: 120px !important;
   padding: 6px !important;
   border-radius: 12px !important;
 
-  background: rgba(20, 24, 34, .94) !important; /* solid enough to read */
-  border: 1px solid rgba(255,255,255,.14) !important;
-  box-shadow: 0 14px 30px rgba(0,0,0,.45) !important;
+  background: var(--tileMenuBg, rgba(20, 24, 34, .94)) !important;
+  border: 1px solid var(--tileMenuBorder, rgba(255,255,255,.14)) !important;
+  box-shadow: var(--tileMenuShadow, 0 14px 30px rgba(0,0,0,.45)) !important;
 
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -2308,75 +2342,6 @@ segBtn[aria-checked="true"],
     height 120ms var(--ease-ui),
     transform var(--dur-ui) var(--ease-ui),
     box-shadow var(--dur-ui) var(--ease-ui),
-    background var(--dur-ui) var(--ease-ui),
-    border-color var(--dur-ui) var(--ease-ui);
-
-  border-radius: var(--r-xl);
-  background: var(--folderTileBg, color-mix(in oklab, var(--panel) 45%, transparent));
-  border: 1px solid var(--folderTileBorder, color-mix(in oklab, var(--stroke) 55%, transparent));
-  box-shadow: var(--folderTileShadow, var(--shadow-1));
-  color: var(--text);
-  --fhInset: clamp(8px, calc(var(--tileFolder, 140px) * 0.055), 14px);
-  padding: var(--fhInset);
-}
-
-/* =========================
-   Theme tokens (variables only)
-   Themes MUST NOT style components directly.
-========================= */
-
-/* Google */
-html[data-theme="google"]{
-  --topbarBg: rgba(255,255,255,.78);
-  --topbarBorder: rgba(17,24,39,.10);
-  --topbarShadow: 0 10px 28px rgba(17,24,39,.10);
-
-  --topbarBtnBg: rgba(255,255,255,.70);
-  --topbarBtnBorder: rgba(17,24,39,.12);
-
-  --segActiveBg: rgba(26,115,232,.14);
-  --segActiveBorder: rgba(26,115,232,.35);
-
-  /* Text colors for light header */
-  --textPrimary: #202124;
-  --textSecondary: #5f6368;
-  --iconColor: #202124;
-}
-
-/* Warm */
-html[data-theme="warm"]{
-  --overlayBg: rgba(0,0,0,0.20);
-  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
-}
-
-/* Windows */
-html[data-theme="windows"]{
-  --overlayBg: rgba(0,0,0,0.20);
-  --tileMenuBtnHoverBg: rgba(0,0,0,.10);
-}
-
-.groupMoreBtn{
-  gap:8px;
-}
-
-.groupMoreBtn.isCollapsedLabel{
-  padding-left: 10px;
-  padding-right: 10px;
-}
-
-.groupMoreBtn:not(.isCollapsedLabel){
-  /* Expanded state becomes icon-like */
-  width: 34px;
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-  text-indent: -9999px; /* hide text */
-  position: relative;
-}
-
-.groupMoreBtn:not(.isCollapsedLabel)::after{
-  content: "⌃";
-  text-indent: 0;
   position: absolute;
   inset: 0;
   display: grid;
@@ -2384,42 +2349,6 @@ html[data-theme="windows"]{
   font-size: 14px;
   line-height: 1;
   opacity: 0.9;
-}
-
-/* =========================================================
-   Theme Folders surfaces — variables only (NO component selectors)
-   ========================================================= */
-
-html[data-theme="warm"]{
-  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.505098);
-  --folderTileBorder: rgba(255, 140, 100, 0.35);
-  --folderTileShadow: rgba(0, 0, 0, 0.14) 0px 6px 18px 0px;
-
-  --folderTitleColor: rgb(42, 27, 20);
-  --folderPreviewBg: rgba(0,0,0,0.10);
-  --folderPreviewStroke: rgba(0,0,0,0.10);
-}
-
-html[data-theme="windows"]{
-  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.92);
-  --folderTileBorder: rgb(199, 209, 223);
-  --folderTileShadow: rgba(0, 0, 0, 0.12) 0px 4px 12px 0px;
-
-  --folderTitleColor: rgb(17, 24, 39);
-  --folderPreviewBg: rgba(0,0,0,0.08);
-  --folderPreviewStroke: rgba(0,0,0,0.10);
-}
-
-html[data-theme="apple"]{
-  --folderTileBg: oklab(0.999994 0.0000455678 0.0000200868 / 0.111843);
-  --folderTileBorder: rgba(255, 255, 255, 0.12);
-  --folderTileShadow: rgba(0, 0, 0, 0.16) 0px 8px 22px 0px;
-  --brandLogoFilter: brightness(0) invert(1);
-
-  --folderTitleColor: rgba(255,255,255,0.92);
-
-  --folderPreviewBg: rgba(255,255,255,0.16);
-  --folderPreviewStroke: rgba(255,255,255,0.14);
 }
 
 /* END */
