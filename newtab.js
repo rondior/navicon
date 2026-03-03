@@ -28,6 +28,7 @@ const TILE_PRESETS = [140, 180, 240];
 const DEFAULT_GROUPS = ["Google", "Other"];
 
 let draggedEl = null;
+let didDrop = false;
 let renderToken = 0;
 let _isSizeDragging = false;
 let _sizeDragTimer = 0;
@@ -117,6 +118,29 @@ async function saveLinks(links) {
   await chrome.storage.local.set({ [STORAGE_KEY]: links });
 }
 
+async function dedupeLinksByIdOnce() {
+  const s = await loadSettings();
+  if (s.__dedupLinksV1) return;
+
+  const links = await loadLinksEnsured();
+  const seen = new Set();
+  const next = [];
+
+  for (const l of links) {
+    if (!l || !l.id) continue;
+    if (seen.has(l.id)) continue;
+    seen.add(l.id);
+    next.push(l);
+  }
+
+  if (next.length !== links.length) {
+    await saveLinks(next);
+    console.log("[DEDUP] Removed duplicates:", links.length - next.length);
+  }
+
+  s.__dedupLinksV1 = true;
+  await saveSettings(s);
+}
 
 async function deleteTile(id) {
   const links = await loadLinksEnsured();
@@ -485,12 +509,28 @@ async function buildGroups(links) {
 
 async function persistOrderFromDOM() {
   // Persist overall order based on DOM tile order (across sections)
-  const ids = Array.from(document.querySelectorAll(".tile")).map(el => el.dataset.id);
+  // CRITICAL: dedupe IDs because DOM can momentarily contain repeated tiles during DnD / rebuilds
+  const seen = new Set();
+  const orderedIds = [];
+
+  for (const el of document.querySelectorAll(".tile")) {
+    const id = el.dataset.id;
+    if (!id) continue;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    orderedIds.push(id);
+  }
+
   const links = await loadLinksEnsured();
   const byId = new Map(links.map(l => [l.id, l]));
-  const next = ids.map(id => byId.get(id)).filter(Boolean);
-  // Append any missing
-  for (const l of links) if (!ids.includes(l.id)) next.push(l);
+
+  const next = orderedIds.map(id => byId.get(id)).filter(Boolean);
+
+  // Append any links not present in DOM order
+  for (const l of links) {
+    if (!seen.has(l.id)) next.push(l);
+  }
+
   await saveLinks(next);
 }
 
@@ -657,26 +697,25 @@ menu.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation();
 
 a.addEventListener("dragstart", (e) => {
   draggedEl = a;
+  didDrop = false;
   a.classList.add("dragging");
 
-  // Required by some browsers to initiate drag
-  try { e.dataTransfer.setData("text/plain", a.dataset.id || ""); } catch {}
+  const id = a.dataset.id || "";
+
+  // Canonical drag payloads (used by section drop)
+  try { e.dataTransfer.setData("application/x-navicon-id", id); } catch {}
+  try { e.dataTransfer.setData("application/x-betterdial-id", id); } catch {}
+  // Fallback for browsers / older handlers
+  try { e.dataTransfer.setData("text/plain", id); } catch {}
+
   try { e.dataTransfer.effectAllowed = "move"; } catch {}
 });
 
-a.addEventListener("dragend", async () => {
-    a.classList.remove("dragging");
-    draggedEl = null;
-
-    try {
-      const holder = a.closest(".groupGrid");
-      const groupName = holder ? holder.dataset.group : null;
-      if (groupName) await setTileGroup(a.dataset.id, groupName);
-
-      await persistOrderFromDOM();
-      await render();
-    } catch (err) { console.error("[TILE RENDER ERROR]", err); }
-  });
+a.addEventListener("dragend", () => {
+  a.classList.remove("dragging");
+  draggedEl = null;
+  // IMPORTANT: no persist/render here — drop handler owns state changes
+});
 
   a.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -1082,14 +1121,24 @@ function makeSection(name, items) {
   });
 
   ggrid.addEventListener("drop", async (e) => {
-    ggrid.classList.remove("dragover");
-    e.preventDefault();
-    const id = e.dataTransfer ? e.dataTransfer.getData("text/plain") : "";
-    if (!id) return;
-    await setTileGroup(id, name);
-    try { await persistOrderFromDOM(); } catch (err) { console.error("[TILE RENDER ERROR]", err); }
-    render();
-  });
+  ggrid.classList.remove("dragover");
+  e.preventDefault();
+  e.stopPropagation(); // CRITICAL: prevents section drop from also firing
+
+  const dt = e.dataTransfer;
+  const id = dt
+    ? (dt.getData("application/x-navicon-id") ||
+       dt.getData("application/x-betterdial-id") ||
+       dt.getData("text/plain"))
+    : "";
+  if (!id) return;
+
+  didDrop = true;
+
+  await setTileGroup(id, name);
+  try { await persistOrderFromDOM(); } catch (err) { console.error("[TILE RENDER ERROR]", err); }
+  await render();
+});
 
   // --- Show more / Show less (per-group) ---
   let expanded = false;
@@ -1164,31 +1213,38 @@ function makeSection(name, items) {
   section.appendChild(ggrid);
 
   // SECTION DROP TARGET (drop anywhere inside the section box)
-  section.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    section.classList.add("dragover");
-  });
+section.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  section.classList.add("dragover");
+});
 
-  section.addEventListener("dragleave", () => {
-    section.classList.remove("dragover");
-  });
+section.addEventListener("dragleave", () => {
+  section.classList.remove("dragover");
+});
 
-  section.addEventListener("drop", async (e) => {
-    e.preventDefault();
-    section.classList.remove("dragover");
+section.addEventListener("drop", async (e) => {
+  // If the drop occurred on the inner grid, let ggrid handle it.
+  if (e.target && e.target.closest && e.target.closest(".groupGrid")) return;
 
-    const dt = e.dataTransfer;
-    const id = dt
-      ? (dt.getData("application/x-navicon-id") ||
-         dt.getData("application/x-betterdial-id") ||
-         dt.getData("text/plain"))
-      : "";
-    if (!id) return;
+  e.preventDefault();
+  e.stopPropagation();
+  section.classList.remove("dragover");
 
-    await setTileGroup(id, name);
-    await persistOrderFromDOM();
-    await render();
-  });
+  const dt = e.dataTransfer;
+  const id = dt
+    ? (dt.getData("application/x-navicon-id") ||
+       dt.getData("application/x-betterdial-id") ||
+       dt.getData("text/plain"))
+    : "";
+  if (!id) return;
+
+  didDrop = true;
+
+  await setTileGroup(id, name);
+  await persistOrderFromDOM();
+  await render();
+});
+
   // END SECTION DROP TARGET
 
   return section;
@@ -1196,6 +1252,8 @@ function makeSection(name, items) {
 
 async function render() {
   const token = ++renderToken;
+
+  await dedupeLinksByIdOnce();
 
   // Clear immediately (and ensure we're clearing the correct container)
   grid.innerHTML = "";
@@ -1573,28 +1631,44 @@ settingsDialog?.addEventListener("click", (e) => {
 });
 
   addForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const name = nameInput.value.trim();
-    const url = normalizeUrl(urlInput.value);
-    if (!url) return;
+  e.preventDefault();
 
-    const links = await loadLinksEnsured();
-    const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } })();
-    let group = "";
-    const chosen = sectionSelect ? String(sectionSelect.value || "").trim() : "";
+  const name = nameInput.value.trim();
+  const url = normalizeUrl(urlInput.value);
+  if (!url) return;
 
-      if (chosen) {
-      group = await ensureValidGroup(chosen);
-    } else {
-      group = await ensureValidGroup(suggestGroup(host));
-    }
+  const links = await loadLinksEnsured();
 
-    links.push({ id: makeId(), name, url, group });
-    await saveLinks(links);
+  // Duplicate check (by normalized URL)
+  const urlKey = url.trim().toLowerCase();
+  const existing = links.find(l => (l?.url || "").trim().toLowerCase() === urlKey);
 
+  if (existing) {
     addDialog.close();
-    render();
-  });
+    showToast("That link is already saved — not adding a duplicate.", 3200);
+    return;
+  }
+
+  const host = (() => {
+    try { return new URL(url).hostname.replace(/^www\./, ""); }
+    catch { return ""; }
+  })();
+
+  let group = "";
+  const chosen = sectionSelect ? String(sectionSelect.value || "").trim() : "";
+
+  if (chosen) {
+    group = await ensureValidGroup(chosen);
+  } else {
+    group = await ensureValidGroup(suggestGroup(host));
+  }
+
+  links.push({ id: makeId(), name, url, group });
+  await saveLinks(links);
+
+  addDialog.close();
+  render();
+});
 
   async function renderSectionManager() {
   if (!sectionList) return;
