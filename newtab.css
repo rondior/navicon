@@ -787,6 +787,15 @@ body{
   transform: translateX(-50%) translateY(0);
 }
 
+/* Toast error variant */
+.toast.error{
+  background: color-mix(in oklab, var(--panel) 88%, rgba(198,40,40,.18));
+  border-color: rgba(198,40,40,.45);
+  color: #c62828;          /* strong red */
+  font-size: 15px;         /* slightly larger */
+  font-weight: 750;
+}
+
 .brand{font-weight:700; letter-spacing:.2px}
 .actions{display:flex; gap:10px}
 

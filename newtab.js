@@ -36,16 +36,25 @@ let _sizeDragTimer = 0;
 /* =========================
    Toast helper
 ========================= */
-function showToast(message, ms = 2600) {
+function showToast(message, ms = 2600, type = "") {
   const el = document.getElementById("toast");
   if (!el) return;
 
   el.textContent = message;
+
+  // Reset variant classes
+  el.classList.remove("error");
+
+  if (type === "error") {
+    el.classList.add("error");
+  }
+
   el.classList.add("show");
 
   window.clearTimeout(showToast._t);
   showToast._t = window.setTimeout(() => {
     el.classList.remove("show");
+    el.classList.remove("error");
   }, ms);
 }
 
@@ -1645,7 +1654,7 @@ settingsDialog?.addEventListener("click", (e) => {
 
   if (existing) {
     addDialog.close();
-    showToast("That link is already saved — not adding a duplicate.", 3200);
+    showToast("That link is already saved — can't add duplicate.", 3200, "error");
     return;
   }
 
