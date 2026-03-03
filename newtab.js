@@ -29,6 +29,11 @@ const DEFAULT_GROUPS = ["Google", "Other"];
 
 let draggedEl = null;
 let didDrop = false;
+
+// Drop highlight (must survive render() rebuilding the DOM)
+let lastDroppedId = "";
+let lastDroppedAt = 0;
+
 let renderToken = 0;
 let _isSizeDragging = false;
 let _sizeDragTimer = 0;
@@ -619,6 +624,7 @@ function renderTile(link) {
   a.rel = "noreferrer";
   a.draggable = true;
   a.dataset.id = link.id;
+
   const aid = link.id;
 
   // ⋯ menu button + dropdown
@@ -634,7 +640,8 @@ function renderTile(link) {
   btnEdit.type = "button";
   btnEdit.textContent = "Edit";
   btnEdit.addEventListener("click", async (e) => {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
     menu.classList.remove("open");
     await editTile(aid);
   });
@@ -644,7 +651,8 @@ function renderTile(link) {
   btnDelete.textContent = "Delete";
   btnDelete.className = "danger";
   btnDelete.addEventListener("click", async (e) => {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
     menu.classList.remove("open");
     await deleteTile(aid);
   });
@@ -654,77 +662,79 @@ function renderTile(link) {
 
   // Prevent menu clicks from navigating
   menuBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
 
-  // Close other menus
-  document.querySelectorAll(".tileMenu.open").forEach(el => {
-    if (el !== menu) el.classList.remove("open");
+    // Close other menus
+    document.querySelectorAll(".tileMenu.open").forEach((el) => {
+      if (el !== menu) el.classList.remove("open");
+    });
+
+    menu.classList.toggle("open");
+
+    // Position menu with fixed coordinates so it's never clipped/behind panels
+    if (menu.classList.contains("open")) {
+      const r = menuBtn.getBoundingClientRect();
+
+      // Set base style
+      menu.style.minWidth = "156px";
+      menu.style.position = "fixed";
+      menu.style.zIndex = "2147483647";
+      menu.style.right = "";
+      menu.style.transform = "";
+
+      // Place it first so we can measure width
+      menu.style.top = `${Math.round(r.bottom + 8)}px`;
+      menu.style.left = "8px";
+
+      // Force layout so width is real
+      menu.offsetHeight;
+
+      // Measure and center under the 3-dot button
+      const w = Math.max(156, Math.ceil(menu.getBoundingClientRect().width));
+      let left = Math.round(r.left + r.width / 2 - w / 2);
+
+      // Clamp to viewport
+      left = Math.min(window.innerWidth - pad - w, Math.max(pad, left));
+      menu.style.left = `${left}px`;
+    } else {
+      // reset so theme CSS still applies when closed
+      menu.style.position = "";
+      menu.style.top = "";
+      menu.style.left = "";
+      menu.style.right = "";
+      menu.style.transform = "";
+      menu.style.zIndex = "";
+      menu.style.minWidth = "";
+    }
   });
 
-  menu.classList.toggle("open");
+  menu.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
-  // Position menu with fixed coordinates so it's never clipped/behind panels
-if (menu.classList.contains("open")) {
-  const r = menuBtn.getBoundingClientRect();
+  a.addEventListener("dragstart", (e) => {
+    draggedEl = a;
+    didDrop = false;
+    a.classList.add("dragging");
 
-  // Set base style
-  menu.style.minWidth = "156px";
-  menu.style.position = "fixed";
-  menu.style.zIndex = "2147483647";
-  menu.style.right = "";
-  menu.style.transform = "";
+    const id = a.dataset.id || "";
 
-  // Place it first so we can measure width
-menu.style.top = `${Math.round(r.bottom + 8)}px`;
-menu.style.left = "8px";
+    // Canonical drag payloads (used by section drop)
+    try { e.dataTransfer.setData("application/x-navicon-id", id); } catch {}
+    try { e.dataTransfer.setData("application/x-betterdial-id", id); } catch {}
+    // Fallback for browsers / older handlers
+    try { e.dataTransfer.setData("text/plain", id); } catch {}
 
- // Force layout so width is real
-menu.offsetHeight;
+    try { e.dataTransfer.effectAllowed = "move"; } catch {}
+  });
 
- // Measure and center under the 3-dot button
-const w = Math.max(156, Math.ceil(menu.getBoundingClientRect().width));
-let left = Math.round(r.left + (r.width / 2) - (w / 2));
-
-  // Clamp to viewport
-  left = Math.min(window.innerWidth - pad - w, Math.max(pad, left));
-
-  menu.style.left = `${left}px`;
-} else {
-  // reset so theme CSS still applies when closed
-  menu.style.position = "";
-  menu.style.top = "";
-  menu.style.left = "";
-  menu.style.right = "";
-  menu.style.transform = "";
-  menu.style.zIndex = "";
-  menu.style.minWidth = "";
-}
-});
-
-menu.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); });
-
-a.addEventListener("dragstart", (e) => {
-  draggedEl = a;
-  didDrop = false;
-  a.classList.add("dragging");
-
-  const id = a.dataset.id || "";
-
-  // Canonical drag payloads (used by section drop)
-  try { e.dataTransfer.setData("application/x-navicon-id", id); } catch {}
-  try { e.dataTransfer.setData("application/x-betterdial-id", id); } catch {}
-  // Fallback for browsers / older handlers
-  try { e.dataTransfer.setData("text/plain", id); } catch {}
-
-  try { e.dataTransfer.effectAllowed = "move"; } catch {}
-});
-
-a.addEventListener("dragend", () => {
-  a.classList.remove("dragging");
-  draggedEl = null;
-  // IMPORTANT: no persist/render here — drop handler owns state changes
-});
+  a.addEventListener("dragend", () => {
+    a.classList.remove("dragging");
+    draggedEl = null;
+    // IMPORTANT: no persist/render here — drop handler owns state changes
+  });
 
   a.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -751,24 +761,24 @@ a.addEventListener("dragend", () => {
   });
 
   // --- Attach menu UI to the tile ---
-a.appendChild(menuBtn);
-a.appendChild(menu);
+  a.appendChild(menuBtn);
+  a.appendChild(menu);
 
-// --- Tile contents (thumb + name + url) ---
-const thumb = document.createElement("div");
-thumb.className = "thumb";
-applyThumb(thumb, link.url);
-a.appendChild(thumb);
+  // --- Tile contents (thumb + name + url) ---
+  const thumb = document.createElement("div");
+  thumb.className = "thumb";
+  applyThumb(thumb, link.url);
+  a.appendChild(thumb);
 
-const name = document.createElement("div");
-name.className = "name";
-name.textContent = link.name || link.title || link.url;
-a.appendChild(name);
+  const name = document.createElement("div");
+  name.className = "name";
+  name.textContent = link.name || link.title || link.url;
+  a.appendChild(name);
 
-const urlEl = document.createElement("div");
-urlEl.className = "url";
-urlEl.textContent = link.url;
-a.appendChild(urlEl);
+  const urlEl = document.createElement("div");
+  urlEl.className = "url";
+  urlEl.textContent = link.url;
+  a.appendChild(urlEl);
 
   return a;
 }
@@ -1079,6 +1089,8 @@ function closeFolderModal() {
 }
 
 async function setTileGroup(tileId, groupName) {
+  lastDroppedId = tileId || "";
+  lastDroppedAt = Date.now();
   const links = await loadLinksEnsured();
   const g = await ensureValidGroup(groupName);
   const idx = links.findIndex(l => l.id === tileId);
@@ -1130,24 +1142,36 @@ function makeSection(name, items) {
   });
 
   ggrid.addEventListener("drop", async (e) => {
-  ggrid.classList.remove("dragover");
   e.preventDefault();
-  e.stopPropagation(); // CRITICAL: prevents section drop from also firing
+  e.stopPropagation();
 
-  const dt = e.dataTransfer;
-  const id = dt
-    ? (dt.getData("application/x-navicon-id") ||
-       dt.getData("application/x-betterdial-id") ||
-       dt.getData("text/plain"))
-    : "";
+  ggrid.classList.remove("dragover");
+  section.classList.remove("dragover");
+
+  if (!draggedEl) return;
+
+  const id =
+    draggedEl.dataset.id ||
+    (e.dataTransfer
+      ? (e.dataTransfer.getData("application/x-navicon-id") ||
+         e.dataTransfer.getData("application/x-betterdial-id") ||
+         e.dataTransfer.getData("text/plain"))
+      : "");
+
   if (!id) return;
 
   didDrop = true;
+  lastDroppedId = id;
 
-  await setTileGroup(id, name);
-  try { await persistOrderFromDOM(); } catch (err) { console.error("[TILE RENDER ERROR]", err); }
+  // If we dropped into a different section, update the tile's group
+  const targetGroup = String(ggrid.dataset.group || name || "").trim();
+  if (targetGroup) {
+    await setTileGroup(id, targetGroup);
+  }
+
+  await persistOrderFromDOM();
   await render();
-});
+  });
 
   // --- Show more / Show less (per-group) ---
   let expanded = false;
@@ -1222,16 +1246,16 @@ function makeSection(name, items) {
   section.appendChild(ggrid);
 
   // SECTION DROP TARGET (drop anywhere inside the section box)
-section.addEventListener("dragover", (e) => {
+  section.addEventListener("dragover", (e) => {
   e.preventDefault();
   section.classList.add("dragover");
-});
+  });
 
-section.addEventListener("dragleave", () => {
+  section.addEventListener("dragleave", () => {
   section.classList.remove("dragover");
-});
+  });
 
-section.addEventListener("drop", async (e) => {
+  section.addEventListener("drop", async (e) => {
   // If the drop occurred on the inner grid, let ggrid handle it.
   if (e.target && e.target.closest && e.target.closest(".groupGrid")) return;
 
@@ -1248,15 +1272,37 @@ section.addEventListener("drop", async (e) => {
   if (!id) return;
 
   didDrop = true;
+  lastDroppedId = id;
 
   await setTileGroup(id, name);
   await persistOrderFromDOM();
   await render();
-});
+
+  });
 
   // END SECTION DROP TARGET
 
   return section;
+}
+
+function applyDropSettleHighlight() {
+  if (!lastDroppedId) return;
+  if ((Date.now() - lastDroppedAt) > 1800) return;
+
+  requestAnimationFrame(() => {
+    const el = document.querySelector(
+      `.tile[data-id="${CSS.escape(lastDroppedId)}"]`
+    );
+    if (!el) return;
+
+    el.classList.remove("justDropped");
+    void el.offsetWidth; // restart animation reliably
+    el.classList.add("justDropped");
+
+    window.setTimeout(() => {
+      el.classList.remove("justDropped");
+    }, 650);
+  });
 }
 
 async function render() {
@@ -1270,88 +1316,88 @@ async function render() {
   const links = await loadLinksEnsured();
 
   // First install: seed Google apps + set first-run defaults
-if (Array.isArray(links) && links.length === 0) {
+  if (Array.isArray(links) && links.length === 0) {
 
-  const googleLinks = [
-    { name: "Gmail", url: "https://mail.google.com" },
-    { name: "YouTube", url: "https://youtube.com" },
-    { name: "Drive", url: "https://drive.google.com" },
-    { name: "Docs", url: "https://docs.google.com" },
-    { name: "Sheets", url: "https://sheets.google.com" },
-    { name: "Calendar", url: "https://calendar.google.com" },
-    { name: "Meet", url: "https://meet.google.com" },
-    { name: "Gemini", url: "https://gemini.google.com" },
-    { name: "Google", url: "https://google.com" }
-  ];
+    const googleLinks = [
+      { name: "Gmail", url: "https://mail.google.com" },
+      { name: "YouTube", url: "https://youtube.com" },
+      { name: "Drive", url: "https://drive.google.com" },
+      { name: "Docs", url: "https://docs.google.com" },
+      { name: "Sheets", url: "https://sheets.google.com" },
+      { name: "Calendar", url: "https://calendar.google.com" },
+      { name: "Meet", url: "https://meet.google.com" },
+      { name: "Gemini", url: "https://gemini.google.com" },
+      { name: "Google", url: "https://google.com" }
+    ];
 
-  const seeded = googleLinks.map((l, i) => ({
-    id: "seed-" + i + "-" + Date.now(),
-    name: l.name,
-    url: l.url,
-    group: "Google"
-  }));
+    const seeded = googleLinks.map((l, i) => ({
+      id: "seed-" + i + "-" + Date.now(),
+      name: l.name,
+      url: l.url,
+      group: "Google"
+    }));
 
-  // Merge with existing settings (safe) and force first-run experience
-  const existing = await loadSettings();
-  const seededSettings = {
-  ...existing,
-  theme: "google",
-  layoutMode: "sections",
-  groupMode: true,
-  tileSize:72,
-  tileSizeUserSet: true,
-  expandedGroups: {
-    ...(existing.expandedGroups || {}),
-    Google: true
+    // Merge with existing settings (safe) and force first-run experience
+    const existing = await loadSettings();
+    const seededSettings = {
+      ...existing,
+      theme: "google",
+      layoutMode: "sections",
+      groupMode: true,
+      tileSize: 72,
+      tileSizeUserSet: true,
+      expandedGroups: {
+        ...(existing.expandedGroups || {}),
+        Google: true
+      }
+    };
+
+    await chrome.storage.local.set({
+      [STORAGE_KEY]: seeded,
+      [SETTINGS_KEY]: seededSettings
+    });
+
+    showToast("We’ve added popular Google apps to get you started.", 6000);
+
+    // Force re-render after seeding
+    render();
+    return;
   }
-};
-
-  await chrome.storage.local.set({
-    [STORAGE_KEY]: seeded,
-    [SETTINGS_KEY]: seededSettings
-  });
-
-  showToast("We’ve added popular Google apps to get you started.", 6000);
-
-  // Force re-render after seeding
-  render();
-  return;
-}
 
   if (token !== renderToken) return;
 
   const s = await loadSettings();
 
   // Ensure tile size CSS var is applied before any layout is rendered
-// Enforce premium minimum (72) so legacy saved values like 64 can't persist
-if (typeof s.tileSize === "number" && s.tileSize > 0) {
-  const clamped = Math.min(160, Math.max(72, s.tileSize));
-  s.tileSize = clamped; // normalize in-memory for downstream slider/UI
-  document.documentElement.style.setProperty("--tile", `${clamped}px`);
-}
+  // Enforce premium minimum (72) so legacy saved values like 64 can't persist
+  if (typeof s.tileSize === "number" && s.tileSize > 0) {
+    const clamped = Math.min(160, Math.max(72, s.tileSize));
+    s.tileSize = clamped; // normalize in-memory for downstream slider/UI
+    document.documentElement.style.setProperty("--tile", `${clamped}px`);
+  }
 
   const layoutMode = s.layoutMode || (s.groupMode ? "sections" : "flat");
 
   // Sync top-bar UI to settings (layout buttons + slider)
-try {
-  // Layout segmented control (buttons use data-mode)
-  document.querySelectorAll('button[data-mode]').forEach(btn => {
-    const mode = btn.getAttribute("data-mode");
-    const active = (mode === layoutMode);
+  try {
+    // Layout segmented control (buttons use data-mode)
+    document.querySelectorAll('button[data-mode]').forEach(btn => {
+      const mode = btn.getAttribute("data-mode");
+      const active = (mode === layoutMode);
 
-    btn.classList.toggle("active", active);
-    btn.setAttribute("aria-checked", active ? "true" : "false");
-  });
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-checked", active ? "true" : "false");
+    });
 
-  // Tile size slider is owned by init/mode-switch logic + applyTileSize() + handlers.
-// Do not compute mode-aware values here (prevents slider snapping).
-const sizeRange = document.getElementById("sizeRange");
-if (sizeRange) {
-  // intentionally empty
-}
-} catch {}
+    // Tile size slider is owned by init/mode-switch logic + applyTileSize() + handlers.
+    // Do not compute mode-aware values here (prevents slider snapping).
+    const sizeRange = document.getElementById("sizeRange");
+    if (sizeRange) {
+      // intentionally empty
+    }
+  } catch {}
 
-  await updateProBadges();  // ← ADD THIS LINE HERE
+  await updateProBadges();
 
   const grouped = (layoutMode === "sections"); // ONLY sections uses grouped layout
   if (grid) {
@@ -1362,7 +1408,7 @@ if (sizeRange) {
   // Clear again after awaits to prevent append from a stale render
   grid.innerHTML = "";
 
-    // First-run hint (anchor to + Add in header)
+  // First-run hint (anchor to + Add in header)
   const firstRunHint = document.getElementById("firstRunHint");
   if (firstRunHint) firstRunHint.style.display = (links.length === 0) ? "inline-flex" : "none";
 
@@ -1371,9 +1417,10 @@ if (sizeRange) {
     return;
   }
 
-      // Layout branching (3-mode)
+  // Layout branching (3-mode)
   if (layoutMode === "flat") {
     links.forEach(link => grid.appendChild(renderTile(link)));
+    applyDropSettleHighlight();
     return;
   }
 
@@ -1392,6 +1439,7 @@ if (sizeRange) {
     }
 
     applyGroupDensitySizing();
+    applyDropSettleHighlight();
     return;
   }
 
@@ -1403,15 +1451,17 @@ if (sizeRange) {
   grid.innerHTML = "";
 
   for (const [name, items] of groups) {
-  // Retail rule: hide empty "Other"
-  if (
-    name.toLowerCase() === "other" &&
-    (!items || items.length === 0)
-  ) continue;
+    // Retail rule: hide empty "Other"
+    if (
+      name.toLowerCase() === "other" &&
+      (!items || items.length === 0)
+    ) continue;
 
-  grid.appendChild(makeSection(name, items));
-}
+    grid.appendChild(makeSection(name, items));
+  }
+
   applyGroupDensitySizing();
+  applyDropSettleHighlight();
 }
 
 // Init sizing + grouped mode

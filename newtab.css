@@ -119,6 +119,34 @@
    No layout. No sizing. No component styling.
 ========================= */
 
+/* ========================================
+   Drop Highlight Colors (theme specific)
+======================================== */
+
+:root {
+  --dropHighlight: #3b82f6; /* default fallback (blue) */
+}
+
+/* Windows */
+html[data-theme="windows"] {
+  --dropHighlight: #3b82f6; /* blue */
+}
+
+/* Google */
+html[data-theme="google"] {
+  --dropHighlight: #f97316; /* vivid orange */
+}
+
+/* Apple */
+html[data-theme="apple"] {
+  --dropHighlight: #22c55e; /* bright green */
+}
+
+/* Warm */
+html[data-theme="warm"] {
+  --dropHighlight: #ff9e80; /* bright peach */
+}
+
 /* Google Style (DEFAULT) */
 html[data-theme="google"]{
 
@@ -1291,9 +1319,14 @@ main{padding:18px}
   border: 1px dashed rgba(255,255,255,.12);
   background: rgba(0,0,0,.12);
 }
+
 .groupGrid.dragover{
-  border-color: rgba(99,102,241,.55);
+  border-color: rgba(99,102,241,.70);
   background: rgba(99,102,241,.10);
+  box-shadow:
+    0 0 0 2px rgba(99,102,241,.20),
+    0 14px 38px rgba(0,0,0,.22);
+  animation: naviconPulse 900ms var(--ease-ui) infinite;
 }
 
 /* Collapsible sections */
@@ -1608,8 +1641,26 @@ border-bottom: 1px solid var(--stroke);
 
 /* Drop feedback */
 .groupSection.dragover{
-  outline: 2px solid rgba(99,102,241,.55);
+  outline: 2px solid rgba(99,102,241,.70);
   background: rgba(99,102,241,.08);
+  box-shadow:
+    0 0 0 2px rgba(99,102,241,.18),
+    0 18px 48px rgba(0,0,0,.20);
+  animation: naviconPulse 900ms var(--ease-ui) infinite;
+}
+
+/* Drop settle animation (applied after render() rebuilds DOM) */
+@keyframes naviconDropSettle{
+  0%   { transform: scale(.985); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  55%  { transform: scale(1.02); }
+  100% { transform: scale(1.0); }
+}
+
+.tile.justDropped {
+  animation: naviconDropSettle 520ms var(--ease-ui);
+  box-shadow: 
+    0 0 0 2px var(--dropHighlight),
+    0 12px 36px -4px var(--dropHighlight);
 }
 
 /* Multi-select mode */
